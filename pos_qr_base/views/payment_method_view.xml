@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="pos_payment_method_view_form" model="ir.ui.view">
+        <field name="name">pos.payment.method.form</field>
+        <field name="model">pos.payment.method</field>
+        <field name="inherit_id" ref="point_of_sale.pos_payment_method_view_form"/>
+        <field name="arch" type="xml">
+            <field name="use_payment_terminal" position="after">
+                <field attrs="{'invisible':[('use_payment_terminal', '!=', 'qr')]}" name="acquirer_id"/>
+                <field name="use_qr" attrs="{'invisible':[('use_payment_terminal', '=', True)]}"/>
+                <field attrs="{'invisible':[('use_qr', '=', False)]}" name="qr_method"/>
+                <field attrs="{'invisible':[('qr_method', '!=', 'fix')]}" name="qr_image"/>
+                <field attrs="{'invisible':[('qr_method', '!=', 'fix_by_config')]}" name="config_qr_ids">
+                    <tree editable="buttom" string="QR">
+                        <field name="config_id"/>
+                        <field name="qr_image"/>
+                    </tree>
+                </field>
+            </field>
+        </field>
+    </record>
+    <record id="pos_payment_config_qr_tree" model="ir.ui.view">
+        <field name="name">pos_payment_config_qr.tree</field>
+        <field name="model">pos.payment.config_qr</field>
+        <field name="arch" type="xml">
+            <tree string="QR">
+                <field name="method_id"/>
+                <field name="config_id"/>
+                <field name="qr_image"/>
+            </tree>
+        </field>
+    </record>
+    <record id="pos_payment_config_qr_form" model="ir.ui.view">
+        <field name="name">pos_payment_config_qr.form</field>
+        <field name="model">pos.payment.config_qr</field>
+        <field name="arch" type="xml">
+            <form string="description">
+                <sheet>
+                    <group>
+                        <field name="method_id"/>
+                        <field name="config_id"/>
+                        <field name="qr_image"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" inherit_id="point_of_sale.template">
+    <t t-extend="PaymentScreen-Paymentlines">
+        <t t-jquery=".paymentline.selected" t-operation="after">
+            <tr class="qr_tr" t-if="line.payment_method.use_qr">
+                <td colspan="10">
+                <t t-if="line.payment_method.qr_method == 'fix' or line.payment_method.qr_method == 'fix_by_config'">
+                    <img  class="qr_image" t-att-src="'data:image/jpeg;base64,' + line.payment_method.pos_qr_image" />
+                </t>
+                <t t-if="line.payment_method.qr_method== 'payment'">
+                    <button  t-att-data-method-id='line.payment_method.id'  class="button get_payment_qr">Iniciar transaccion</button>                    
+                </t>
+            </td>
+            </tr>
+
+        </t>
+    </t>
+</templates>

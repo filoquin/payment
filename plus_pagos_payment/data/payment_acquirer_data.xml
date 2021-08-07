@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="payment_acquirer_pp" model="payment.acquirer">
+            <field name="name">Plus Pagos</field>
+            <field name="image_128" type="base64" file="plus_pagos_payment/static/src/img/logo.png"/>
+            <field name="provider">plus_pagos</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+    </data>
+</odoo>

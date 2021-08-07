@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="pos_config_view_form" model="ir.ui.view">
+		<field name="name">pos.config.form.view</field>
+		<field name="model">pos.config</field>
+		<field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//div[@id='payment_methods_new']/.." position="after">
+				<h2>plus pagos</h2>
+				<div class="row mt16 o_settings_container" id="adyen">
+					<div class="col-12 col-lg-6 o_setting_box">
+						<div class="o_setting_left_pane">
+							<field name="pp_active"/>
+						</div>
+						<div class="o_setting_right_pane">
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_cashbox_code" string="Codigo de caja"/>
+								<field name="pp_cashbox_code"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_store_code" string="Codigo de tiendo"/>
+								<field name="pp_store_code"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_fixed" string="Valor fijo"/>
+								<field name="pp_fixed"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_qr" string="URL qr"/>
+								<field name="pp_qr"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_guid" string="GUID"/>
+								<field name="pp_guid"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_cashbox_id" string="ID de caja"/>
+								<field name="pp_cashbox_id"/>
+							</div>
+							<button name="action_pp_add_cashbox" string="Add punto de pago" type="object"/>
+							<button name="action_pp_unlink_cashbox" string="Del" type="object"/>
+						</div>
+					</div>
+				</div>
+			</xpath>
+		</field>
+	</record>
+</odoo>

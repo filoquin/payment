@@ -1,0 +1,3 @@
+"id","name","model_id/id","group_id/id","perm_read","perm_write","perm_create","perm_unlink"
+"pos_qr_bas.qr_admin","pos.payment.config_qr user","pos_qr_base.model_pos_payment_config_qr","point_of_sale.group_pos_user","True","","",""
+"pos_qr_bas.qr_user","pos.payment.config_qr admin","pos_qr_base.model_pos_payment_config_qr","point_of_sale.group_pos_manager","True","True","True","True"
