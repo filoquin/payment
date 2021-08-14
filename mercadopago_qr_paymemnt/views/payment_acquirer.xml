@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="acquirer_form_mp_qr" model="ir.ui.view">
+		<field name="name">acquirer.form.mp_qr</field>
+		<field name="model">payment.acquirer</field>
+		<field name="inherit_id" ref="payment.acquirer_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//group[@name=&quot;acquirer&quot;]" position="inside">
+				<group attrs="{'invisible': [('provider', '!=', 'mp_qr')]}" colspan="4" string="plus pagos">
+					<button name="action_mp_create_stores" string="Create stores" type="object"/>
+					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_public_key"/>
+					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_access_token" password="true"/>
+					<span colspan="4"><field name="store_ids">
+						<tree>
+							<field name="name"/>
+							<field name="external_id"/>
+							<field name="state"/>
+						</tree>
+					</field></span>
+				</group>
+			</xpath>
+		</field>
+	</record>
+	<record id="mp_store_form" model="ir.ui.view">
+		<field name="name">mp_store.form</field>
+		<field name="model">mp.store</field>
+		<field name="arch" type="xml">
+			<form string="description">
+				<header>
+					<field name="state" widget="statusbar"/>
+				</header>
+				<sheet>
+					<h1>
+						<field name="name"/>
+					</h1>
+					<group col="4">
+						<field name="acquirer_id"/>
+						<field name="external_id"/>
+					</group>
+					<group col="4" string="address">
+						<field name="country_name"/>
+						<field name="state_name"/>
+						<field name="city_name"/>
+						<field name="street_name"/>
+						<field name="street_number"/>
+						<field name="latitude"/>
+						<field name="longitude"/>
+						<field name="reference"/>
+					</group>
+					<group string="business hours">
+						<field name="business_hours_ids" widget="one2many_list">
+							<tree editable="buttom">
+								<field name="day"/>
+								<field name="open_time" widget="float_time"/>
+								<field name="close_time" widget="float_time"/>
+							</tree>
+						</field>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+</odoo>

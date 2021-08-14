@@ -6,7 +6,7 @@
 		<field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
 		<field name="arch" type="xml">
 			<xpath expr="//div[@id='payment_methods_new']/.." position="after">
-				<h2>plus pagos</h2>
+				<h2>Plus pagos</h2>
 				<div class="row mt16 o_settings_container" id="adyen">
 					<div class="col-12 col-lg-6 o_setting_box">
 						<div class="o_setting_left_pane">
@@ -37,8 +37,12 @@
 								<label class="col-lg-3 o_light_label" for="pp_cashbox_id" string="ID de caja"/>
 								<field name="pp_cashbox_id"/>
 							</div>
-							<button name="action_pp_add_cashbox" string="Add punto de pago" type="object"/>
-							<button name="action_pp_unlink_cashbox" string="Del" type="object"/>
+
+							<button name="action_pp_add_cashbox" string="+ Add" type="object"/>
+							<button name="action_pp_unlink_cashbox" string="- Del" type="object"/>
+							<button name="action_pp_get_cashbox" string="Get" type="object"/>
+							<button name="action_pp_create_order" string="Test" type="object"/>
+
 						</div>
 					</div>
 				</div>

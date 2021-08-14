@@ -24,8 +24,9 @@ class PosConfig(models.Model):
     )
     pp_fixed = fields.Boolean(
         string='Fixed_Amount',
+        default=True,
     )
-    pp_qr = fields.Char(
+    pp_qr_url = fields.Char(
         string='qr URL',
     )
     pp_guid = fields.Char(
@@ -33,7 +34,12 @@ class PosConfig(models.Model):
     )
     pp_cashbox_id = fields.Integer(
          string='cashbox id',
-     ) 
+    ) 
+
+    pp_qr = fields.Binary(
+        string='QR',
+        attachment=True,
+    )
 
     def action_pp_add_cashbox(self):
         acquirer = self.env['payment.acquirer'].search([('provider', '=', 'plus_pagos')], limit=1)
@@ -55,3 +61,12 @@ class PosConfig(models.Model):
                 self.pp_guid = ''
                 self.pp_cashbox_id = 0
 
+    def action_pp_get_cashbox(self):
+        acquirer = self.env['payment.acquirer'].search([('provider', '=', 'plus_pagos')], limit=1)
+        if acquirer:
+            res = acquirer.pp_get_cashbox(self.pp_cashbox_code)
+
+    def action_pp_create_order(self):
+        acquirer = self.env['payment.acquirer'].search([('provider', '=', 'plus_pagos')], limit=1)
+        if acquirer:
+            res = acquirer.pp_create_order(self.pp_cashbox_code, 20, 'test', 'test')
