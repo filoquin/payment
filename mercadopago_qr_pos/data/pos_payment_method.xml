@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data noupdate="1">
+		<record id="mp_qr_pos_payment_method" model="pos.payment.method">
+			<field name="name">QR de Mercado Pago</field>
+			<field name="use_payment_terminal">qr</field>
+			<field name="acquirer_id" ref="mercadopago_qr_paymemnt.payment_acquirer_mp_qr"/>
+		</record>
+	</data>
+</odoo>

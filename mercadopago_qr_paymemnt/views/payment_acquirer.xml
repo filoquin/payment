@@ -10,13 +10,15 @@
 					<button name="action_mp_create_stores" string="Create stores" type="object"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_public_key"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_access_token" password="true"/>
-					<span colspan="4"><field name="store_ids">
-						<tree>
-							<field name="name"/>
-							<field name="external_id"/>
-							<field name="state"/>
-						</tree>
-					</field></span>
+					<span colspan="4">
+						<field name="store_ids">
+							<tree>
+								<field name="name"/>
+								<field name="external_id"/>
+								<field name="state"/>
+							</tree>
+						</field>
+					</span>
 				</group>
 			</xpath>
 		</field>
@@ -27,6 +29,8 @@
 		<field name="arch" type="xml">
 			<form string="description">
 				<header>
+					<button name="action_force_active" states="draft" string="Active" type="object"/>
+					<button name="action_update_mp" states="active" string="Update" type="object"/>
 					<field name="state" widget="statusbar"/>
 				</header>
 				<sheet>
@@ -34,8 +38,9 @@
 						<field name="name"/>
 					</h1>
 					<group col="4">
-						<field name="acquirer_id"/>
-						<field name="external_id"/>
+						<field name="mp_id" groups="base.group_no_one"/>
+						<field name="acquirer_id" attrs="{'invisible':True}"/>
+						<field name="external_id" attrs="{'readonly':[('mp_id' ,'!=', 0)]}"/>
 					</group>
 					<group col="4" string="address">
 						<field name="country_name"/>
@@ -55,6 +60,21 @@
 								<field name="close_time" widget="float_time"/>
 							</tree>
 						</field>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	<record id="business_hours" model="ir.ui.view">
+		<field name="name">business_hours.form</field>
+		<field name="model">mp.store.business_hours</field>
+		<field name="arch" type="xml">
+			<form string="description">
+				<sheet>
+					<group>
+						<field name="day"/>
+						<field name="open_time" widget="float_time"/>
+						<field name="close_time" widget="float_time"/>
 					</group>
 				</sheet>
 			</form>

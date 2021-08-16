@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <field name="use_payment_terminal" position="after">
                 <field attrs="{'invisible':[('use_payment_terminal', '!=', 'qr')]}" name="acquirer_id"/>
-                <field name="use_qr" attrs="{'invisible':[('use_payment_terminal', '=', True)]}"/>
+                <field name="use_qr" attrs="{'invisible':[('use_payment_terminal', '!=', False)]}"/>
                 <field attrs="{'invisible':[('use_qr', '=', False)]}" name="qr_method"/>
                 <field attrs="{'invisible':[('qr_method', '!=', 'fix')]}" name="qr_image"/>
                 <field attrs="{'invisible':[('qr_method', '!=', 'fix_by_config')]}" name="config_qr_ids">

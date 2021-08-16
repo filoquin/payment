@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="pos_config_view_form" model="ir.ui.view">
+		<field name="name">pos.config.form.view</field>
+		<field name="model">pos.config</field>
+		<field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//div[@id='payment_methods_new']/.." position="after">
+				<h2>Mercado Pago QR</h2>
+				<div class="row mt16 o_settings_container" id="adyen">
+					<div class="col-12 col-lg-6 o_setting_box">
+						<div class="o_setting_left_pane">
+							<field name="mp_active"/>
+						</div>
+
+					
+						<div class="o_setting_right_pane">
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_external_id" string="Codigo de caja"/>
+								<field name="mp_external_id"  attrs="{'readonly':[('mp_id' ,'!=', 0)]}"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_store_id" string="Store"/>
+								<field name="mp_store_id"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_fixed" string="Valor fijo"/>
+								<field name="mp_fixed"/>
+							</div>
+
+							<button name="action_add_mp" string="+ Add" type="object"/>
+
+						</div>
+					</div>
+					<div t-attr="{'visible':[('mp_active','=', True)]}" class="col-12 col-lg-6 o_setting_box">
+						<div class="o_setting_left_pane">
+						</div>
+
+						<div class="o_setting_right_pane">
+							<div  groups="base.group_no_one">
+								<label class="col-lg-3 o_light_label" for="mp_id" string="Id caja"/>
+								<field name="mp_id" groups="base.group_no_one"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_uuid" string="uuid"/>
+								<field name="mp_uuid"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_qr" string="URL qr"/>
+								<field name="mp_qr"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="mp_qr_url" string="URL qr"/>
+								<field name="mp_qr_url"/>
+							</div>
+							<button name="action_url2base64" string="Update QR" type="object"/>
+
+						</div>
+					</div>
+
+
+				</div>
+			</xpath>
+		</field>
+	</record>
+</odoo>

@@ -16,6 +16,8 @@ class MpStore(models.Model):
     acquirer_id = fields.Many2one(
         'payment.acquirer',
         string='acquirer',
+        default=lambda self: self.env.ref(
+            'mercadopago_qr_paymemnt.payment_acquirer_mp_qr').id
     )
     name = fields.Char(
         string='Name',
@@ -64,7 +66,8 @@ class MpStore(models.Model):
         self.ensure_one()
         request_data = {}
         request_data['name'] = self.name
-        request_data['external_id'] = self.external_id
+        if self.mp_id == 0:
+            request_data['external_id'] = self.external_id
         request_data['location'] = {}
         request_data['location']['street_number'] = self.street_number
         request_data['location']['street_name'] = self.street_name
@@ -83,21 +86,26 @@ class MpStore(models.Model):
 
         return request_data
 
-    def write(self, vals):
-        res = super().write(vals)
-        for record in self:
-            record.action_mp_update_store(self.mp_id)
-        return res
+    def action_update_mp(self):
+        self.acquirer_id.action_mp_update_store(self.mp_id)
 
     def unlink(self):
-        for record in self:
-            record.action_mp_unlink_store(self.mp_id)
+        for record in self.filtered(lambda s: s.mp_id != 0):
+            record.acquirer_id.action_mp_unlink_store(self.mp_id)
         return super().unlink()
+
+    def action_force_active(self):
+        self.state = 'active'
 
 
 class MpStoreBusinessHours(models.Model):
     _name = 'mp.store.business_hours'
     _description = 'Mercado pago store business hours'
+
+    name = fields.Char(
+        string='name',
+        compute='_compute_name'
+    )
 
     day = fields.Selection(
         [
@@ -117,3 +125,12 @@ class MpStoreBusinessHours(models.Model):
     close_time = fields.Float(
         string='close',
     )
+
+    def _compute_name(self):
+        for record in self:
+            open_time = '%02d:%02d' % (
+                int(record.open_time), record.open_time % 1 * 60),
+            close_time = '%02d:%02d' % (
+                int(record.close_time), record.close_time % 1 * 60),
+            record.name = _("%s from %s to %s" %
+                            (record.day, open_time, close_time))

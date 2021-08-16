@@ -2,9 +2,9 @@
 <templates id="template" inherit_id="point_of_sale.template">
     <t t-extend="PaymentScreen-Paymentlines">
         <t t-jquery=".paymentline.selected" t-operation="after">
-            <tr class="qr_tr" t-if="line.payment_method.use_qr">
+            <tr class="qr_tr" t-if="line.payment_method.pos_qr_image">
                 <td colspan="10">
-                <t t-if="line.payment_method.qr_method == 'fix' or line.payment_method.qr_method == 'fix_by_config'">
+                <t t-if="line.payment_method.pos_qr_image">
                     <img  class="qr_image" t-att-src="'data:image/jpeg;base64,' + line.payment_method.pos_qr_image" />
                 </t>
                 <t t-if="line.payment_method.qr_method== 'payment'">
