@@ -63,7 +63,6 @@ class PosPaymentMethod(models.Model):
     @api.model
     def start_qr_transaction(self, data):
         method = self.browse(data['paymentMethod'])
-        data['config_id'] = self.env['pos.config'].browse(data['configId'])
         if len(method.acquirer_id):
             cust_method_name = '%s_pos_transaction' % (method.acquirer_id.provider)
             if hasattr(method.acquirer_id, cust_method_name):

@@ -1,4 +1,6 @@
 from odoo import fields, models
+import requests
+import base64
 
 
 class MpPosMixin(models.AbstractModel):
@@ -38,3 +40,8 @@ class MpPosMixin(models.AbstractModel):
     mp_qr_code = fields.Text(
         string='QR code',
     )
+    
+    def action_url2base64(self):
+        response = requests.get(self.mp_qr_url)
+        data = base64.b64encode(response.content)
+        self.mp_qr = data 

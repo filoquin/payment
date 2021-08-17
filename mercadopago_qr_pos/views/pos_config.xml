@@ -32,7 +32,7 @@
 
 						</div>
 					</div>
-					<div t-attr="{'visible':[('mp_active','=', True)]}" class="col-12 col-lg-6 o_setting_box">
+					<div attrs="{'invisible':[('mp_active','=', False)]}" class="col-12 col-lg-6 o_setting_box">
 						<div class="o_setting_left_pane">
 						</div>
 
@@ -46,11 +46,11 @@
 								<field name="mp_uuid"/>
 							</div>
 							<div>
-								<label class="col-lg-3 o_light_label" for="mp_qr" string="URL qr"/>
+								<label class="col-lg-3 o_light_label" for="mp_qr" string="QR"/>
 								<field name="mp_qr"/>
 							</div>
 							<div>
-								<label class="col-lg-3 o_light_label" for="mp_qr_url" string="URL qr"/>
+								<label class="col-lg-3 o_light_label" for="mp_qr_url" string="URL QR"/>
 								<field name="mp_qr_url"/>
 							</div>
 							<button name="action_url2base64" string="Update QR" type="object"/>
