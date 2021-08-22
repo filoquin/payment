@@ -1,0 +1,72 @@
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">view_order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="validity_date" position="before">
+                <field attrs="{'invisible':True}" name="instalment_count"/>
+                <field name="payment_tmpl_id"/>
+            </field>
+            <xpath expr="//group[@name='sales_person']" postion="after">
+                <group name="instalment" string="Payment method">
+                    <field name="instalment_ids" widget="many2many_tags"/>
+                </group>
+            </xpath>
+            <xpath expr="//tree[1]/field[@name='price_total']" position="after">
+                <field attrs="{'column_invisible':[('parent.instalment_count','&lt;',1)]}" name="price_1"/>
+                <field attrs="{'column_invisible':[('parent.instalment_count','&lt;',2)]}" name="price_2"/>
+                <field attrs="{'column_invisible':[('parent.instalment_count','&lt;',3)]}" name="price_3"/>
+                <field attrs="{'column_invisible':[('parent.instalment_count','&lt;',4)]}" name="price_4"/>
+            </xpath>
+        </field>
+    </record>
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//table[hasclass('o_main_table')]/thead/tr/th[6]" postion="after">
+            <t t-as="instalment_id" t-foreach="doc.instalment_ids">
+                <th class="text-right">
+                    <span t-field="instalment_id.card_id.name"/>
+                    <span t-field="instalment_id.name"/>
+                </th>
+            </t>
+        </xpath>
+        <td name="td_subtotal" position="after">
+            <td class="text-right o_price_total" name="td_price_1" t-if="doc.instalment_count &gt;0">
+                <span t-field="line.price_1"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_2" t-if="doc.instalment_count &gt;1">
+                <span t-field="line.price_2"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_3" t-if="doc.instalment_count &gt;2">
+                <span t-field="line.price_3"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_4" t-if="doc.instalment_count &gt;3">
+                <span t-field="line.price_4"/>
+            </td>
+        </td>
+    </template>
+    <!--template id="sale_order_portal_content" inherit_id="sale.sale_order_portal_content" name="Sales Order Portal Content">
+        <xpath expr="//table[@id='sales_order_table']/thead/tr/th[6]" postion="after">
+            <t t-as="instalment_id" t-foreach="sale_order.instalment_ids">
+                <th class="text-right">
+                    <span t-field="instalment_id.card_id.name"/>
+                    <span t-field="instalment_id.name"/>
+                </th>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-if='not line.display_type']/td[6]" postion="after">
+            <td class="text-right o_price_total" name="td_price_1" t-if="sale_order.instalment_count &gt;0">
+                <span t-field="line.price_1"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_2" t-if="sale_order.instalment_count &gt;1">
+                <span t-field="line.price_2"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_3" t-if="sale_order.instalment_count &gt;2">
+                <span t-field="line.price_3"/>
+            </td>
+            <td class="text-right o_price_total" name="td_price_4" t-if="sale_order.instalment_count &gt;3">
+                <span t-field="line.price_4"/>
+            </td>
+        </xpath>
+    </template-->
+</odoo>

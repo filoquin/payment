@@ -152,9 +152,18 @@ class PaymentAcquirer(models.Model):
             raise UserError(response.content)
 
     def mp_qr_pos_transaction_check(self, data):
-        user_id = self.mp_get_user_id()
+
         api_url = MP_URL + \
-            "instore/qr/seller/collectors/%s/pos/%s/orders" % (
-                user_id, data['pos_external_id'])
+            "merchant_orders?external_reference=%s" % (
+                 data['external_reference'])
+
+        headers = {"Authorization": "Bearer %s" % self.mp_access_token}
+        response = requests.get(api_url, headers=headers)
+        if response.status_code == 200:
+            return True
+        else:
+            raise UserError(response.content)
+
         _logger.info(api_url)
+
         return True

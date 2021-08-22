@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="view_order_form" model="ir.ui.view">
+		<field name="name">view_order_form.form</field>
+		<field name="model">sale.order</field>
+		<field name="inherit_id" ref="sale.view_order_form"/>
+		<field name="arch" type="xml">
+			<button name="payment_action_capture" position="before">
+				<button class="oe_highlight" groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion" id="action_register_payment_btn" name="action_register_sale_payment" string="Register draft Payment" type="object" attrs="{'invisible' : ['|',('amount_residual', '=', 0),('state', 'not in', [('sale')])]}"/>
+			</button>
+			<xpath expr="//page[@name='order_lines']" position="after">
+				<page attrs="{'invisible': [('state', 'not in', ['done', 'sale'])]}" name="payment" string="Payments">
+					<span>
+						<field name="payment_ids"/>
+					</span>
+				</page>
+			</xpath>
+			<xpath expr="//field[@name='amount_total']" position="after">
+				<field name="amount_residual" class="oe_subtotal_footer_separator" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+			</xpath>
+		</field>
+	</record>
+</odoo>

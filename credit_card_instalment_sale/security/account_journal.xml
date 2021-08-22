@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="view_account_journal_form" model="ir.ui.view">
+		<field name="name">account_journal.form</field>
+		<field name="model">account.journal</field>
+		<field name="inherit_id" ref="account.view_account_journal_form"/>
+		<field name="arch" type="xml">
+			<field name="type" position="after">
+				<field attrs="{'invisible':[('type','!=','bank')]}" name="card_type"/>
+			</field>
+			<xpath expr="//page[1]" position="after">
+				<page attrs="{'invisible': [('card_type', '=', False)]}" name="credit_card" string="Credit Card">
+					<group col="4">
+						<field name="card_partner_id"/>
+						<field name="instalment_product_id"/>
+					</group>
+					<group>
+						<button attrs="{'invisible': [('instalment_ids', '!=', [])]}" name="create_instalment_plan" string="create instalment plan" type="object"/>
+					</group>
+					<group string="Instalment plan">
+						<span>
+							<field name="instalment_ids">
+								<tree editable="bottom">
+									<field name="name"/>
+									<field name="instalment"/>
+									<field name="product_id"/>
+									<field name="amount"/>
+									<field name="coefficient"/>
+									<field name="ctf"/>
+									<field name="tea"/>
+									<field name="accreditation_id"/>
+								</tree>
+							</field>
+						</span>
+					</group>
+				</page>
+			</xpath>
+		</field>
+	</record>
+</odoo>

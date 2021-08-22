@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="view_move_form_form" model="ir.ui.view">
+		<field name="name">view_move.form</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="account.view_move_form"/>
+		<field name="arch" type="xml">
+			<button name="action_invoice_register_payment" position="before">
+				<button attrs="{'invisible': ['|', '|', ('state', '!=', 'draft'), ('invoice_payment_state', '!=', 'not_paid'), ('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}" class="oe_highlight" groups="account.group_account_invoice" id="account_invoice_draft_payment_btn" name="action_invoice_draft_register_payment" string="Register draft Payment" type="object"/>
+			</button>
+		</field>
+	</record>
+</odoo>

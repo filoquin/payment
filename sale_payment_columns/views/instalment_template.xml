@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="instalment_template_form" model="ir.ui.view">
+		<field name="name">instalment_template.form</field>
+		<field name="model">sale.order.payment.template</field>
+		<field name="arch" type="xml">
+			<form string="description">
+				<header/>
+				<sheet>
+					<group>
+						<field name="name"/>
+						<field name="instalment_ids"/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+</odoo>

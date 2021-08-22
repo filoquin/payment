@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--record id="product_round" model="product.product">
+    	<field name="name">Round</field>
+            <field name="list_price">1</field>
+            <field name="standard_price">1</field>
+            <field name="type">service</field>
+            <field name="default_code">ROUND</field>
+
+        </record-->
+
+</odoo>

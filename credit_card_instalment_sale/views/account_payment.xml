@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="name_id_form" model="ir.ui.view">
+        <field name="name">view_account_payment_form.form</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <group name="partner_group" position="attributes">
+                <attribute name="invisible">context.get('active_model') == 'account.move' or context.get('active_model') == 'sale.order'</attribute>
+            </group>
+            <field name="invoice_ids" position="after">
+                <field name="sale_order_id" readonly="True" can_create="true" can_write="true" on_change="1"/>
+            </field>
+            <field name="journal_id" position="after">
+                <field invisible="True"  name="account_card_ids"/>
+                <field name="card_id" attrs="{ 'invisible':[('account_card_ids','=',False)]}" domain="[('id','in',account_card_ids)]" options="{'no_open':True,'no_create':1,'no_create_edit':1}"/>                
+                <field invisible="True" name="card_type"/>
+                <field attrs="{'required':[('card_type','in',['debit','credit'])], 'invisible':[('card_type','not in',['debit','credit'])]}" domain="[('card_id','=',card_id)]" name="instalment_id" options="{'no_open':True,'no_create':1,'no_create_edit':1}"/>
+            </field>
+            <group name="right_column" position="after">
+                <group attrs="{'invisible':[('card_type','not in',['debit','credit'])]}" col="4" colspan="2" name="instalment">
+                    <field name="card_number"/>
+                    <field name="tiket_number"/>
+                    <field name="lot_number"/>
+                    <field name="magnet_bar" attrs="{'invisible':   True}" password="True"/>
+                    <field name="discount"/>
+                    <field name="bank_discount"/>
+                    <field name="discount_amount"/>
+                    <field name="fee"/>
+                    <h3 attrs="{'invisible':[('state','!=','draft')]}">A Cobrar <field name="total_amount"/></h3>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

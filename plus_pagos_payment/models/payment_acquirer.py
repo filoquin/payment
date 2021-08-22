@@ -52,7 +52,7 @@ class PaymentAcquirer(models.Model):
         self.ensure_one()
 
         #if self.pp_token and fields.Datetime.from_string(self.pp_token_expires) > datetime.now():
-        if False:
+        if self.pp_token:
             return self.pp_token
         else:
             api_url = self.pp_get_base_url() + "sesion"
@@ -61,7 +61,12 @@ class PaymentAcquirer(models.Model):
                 "frase": self.pp_frase,
                 "guid": self.pp_guid
             }
+            _logger.info(api_url)
+            _logger.info(request_data)
             response = requests.post(api_url, json=request_data)
+            _logger.info(response.status_code)
+            _logger.info(response.content)
+
             if response.status_code == 200: 
                 res = response.json()
                 self.pp_secretkey = res['secretKey']
