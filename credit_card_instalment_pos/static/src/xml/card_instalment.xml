@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" inherit_id="point_of_sale.template">
+    <t t-extend="PaymentScreen-Paymentlines">
+        <t t-jquery=".paymentline.selected" t-operation="after">
+            <tr class="cardLine selected" t-if="line.payment_method.card_id">
+                <td ><i class="fa fa-lg fa-credit-card"></i></td>
+                <td colspan="2">
+                    <select class="instalment" name="instalment" >
+                    <t t-foreach='line.payment_method.instalments' t-as='instalment_id'>
+                        <option t-att-value="instalment_id.id">
+                            <t t-esc="instalment_id.name"/>
+                            <t t-set="amount" t-value="line.get_amount()"/>
+                            <t t-esc="widget.format_currency(amount * instalment_id.coefficient)"/>
+                        </option>
+                    </t>
+                    </select>
+            </td>
+                <td ></td>
+                <td ></td>
+            </tr>
+        </t>
+    </t>
+</templates>

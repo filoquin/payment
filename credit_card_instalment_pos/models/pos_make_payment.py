@@ -11,18 +11,21 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-
 class PosMakePayment(models.TransientModel):
     _inherit = 'pos.make.payment'
 
+    card_id = fields.Many2one(
+        'account.card',
+        string='Card',
+        related="payment_method_id.card_id"
+    )
     instalment_id = fields.Many2one(
         'account.card.instalment',
         string='Instalment plan'
     )
-
     card_type = fields.Selection(
         [('credit', 'credit'), ('debit', 'debit')],
-        related="payment_method_id.card_type"
+        related="card_id.card_type"
     )
 
     magnet_bar = fields.Char(
@@ -73,19 +76,19 @@ class PosMakePayment(models.TransientModel):
                             self.fee)
                         #tax_amount = sum(tax_computed.mapped('taxes'))
 
-                        _logger.info ('tax_computed %r'% tax_computed)
+                        _logger.info('tax_computed %r' % tax_computed)
                         untax_amount = sum(tax_computed.mapped('amount'))
 
                     order.write({'lines': [(0, 0, {
                         'product_id': self.instalment_id.product_id.id,
                         'qty': 1,
-                        'company_id':order.company_id.id,
+                        'company_id': order.company_id.id,
                         'tax_ids_after_fiscal_position': self.instalment_id.product_id.taxes_id.ids,
                         'price_unit': untax_amount,
-                        'price_subtotal':untax_amount,
-                        'price_subtotal_incl':untax_amount,
-                        'name':_("%s %s")%( self.instalment_id.product_id.display_name,  self.instalment_id.name)
-                        }
+                        'price_subtotal': untax_amount,
+                        'price_subtotal_incl': untax_amount,
+                        'name': _("%s %s") % (self.instalment_id.product_id.display_name,  self.instalment_id.name)
+                    }
                     )]})
                 order._onchange_amount_all()
                 order.add_payment({

@@ -12,13 +12,15 @@
     'category': 'pos',
     'version': '13.0.0.1',
 
-    'depends': ['credit_card_instalment','point_of_sale'],
+    'depends': ['credit_card_instalment', 'point_of_sale'],
 
     'data': [
         # 'security/ir.model.access.csv',
         'views/pos_payment_method.xml',
         'views/pos_make_payment.xml',
+        'views/point_of_sale.xml',
     ],
-    'demo': [
+    'qweb': [
+        'static/src/xml/card_instalment.xml',
     ],
 }

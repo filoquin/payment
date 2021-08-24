@@ -33,6 +33,7 @@ class AccountCardInstalment(models.Model):
     coefficient = fields.Float(
         string='coefficient',
         help='Value to multiply the amount',
+        default=1.0
     )
     discount = fields.Float(
         string='discount',

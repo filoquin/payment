@@ -6,8 +6,10 @@
 		<field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
 		<field name="arch" type="xml">
 			<field name="payment_method_id" position="after">
+
+				<field invisible="True" name="card_id"/>
 				<field invisible="True" name="card_type"/>
-				<field attrs="{'required':[('card_type','in',['debit','credit'])], 'invisible':[('card_type','not in',['debit','credit'])]}" domain="[('method_id','=',payment_method_id)]" name="instalment_id" options="{'no_open':True,'no_create':1,'no_create_edit':1}"/>
+				<field attrs="{'required':[('card_type','in',['debit','credit'])], 'invisible':[('card_type','not in',['debit','credit'])]}" domain="[('card_id','=',card_id)]" name="instalment_id" options="{'no_open':True,'no_create':1,'no_create_edit':1}"/>
 			</field>
 			<xpath expr="//group[1]" position="after">
 				<group attrs="{'invisible':[('card_type','not in',['debit','credit'])]}" col="4" name="instalment">
