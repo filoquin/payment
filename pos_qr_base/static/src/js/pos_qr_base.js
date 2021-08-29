@@ -5,8 +5,35 @@ odoo.define("pos_qr_base.payment", function (require) {
   var rpc = require("web.rpc");
   var PaymentInterface = require("point_of_sale.PaymentInterface");
   var screens = require("point_of_sale.screens");
+  var gui = require('point_of_sale.gui');
+  var PopupWidget = require('point_of_sale.popups');
 
   var _t = core._t;
+
+  var PaymentTransactionPopupQRWidget = PopupWidget.extend({
+      template: 'PaymentTransactionPopupQRWidget',
+      show: function (options) {
+          var self = this;
+          this._super(options);
+          options.transaction.then(function (data) {
+              if (data.auto_close) {
+                  setTimeout(function () {
+                      self.gui.close_popup();
+                  }, 2000);
+              } else {
+                  self.close();
+                  self.$el.find('.popup').append('<div class="footer"><div class="button cancel">Ok</div></div>');
+              }
+
+              self.$el.find('p.body').html(data.message);
+          }).progress(function (data) {
+              self.$el.find('p.body').html(data.message);
+          });
+      }
+  });
+
+  gui.define_popup({name:'payment-qr-transaction', widget: PaymentTransactionPopupQRWidget});
+
 
   screens.PaymentScreenWidget.include({
     show: function (reset) {
