@@ -128,7 +128,12 @@ class PaymentAcquirer(models.Model):
         tx_obj = self.env['payment.transaction']
         tx = tx_obj.sudo().create(values)
         tx.sudo().s2s_do_transaction()
-        return True
+        return {
+            'state': tx.state,
+            'transaction_id': tx.id,
+            'reference': tx.reference,
+            'amount': tx.amount,
+        }
     
     def xcreate_order(self, data):
 
@@ -218,7 +223,7 @@ class PaymentTransaction(models.Model):
 
     _inherit = 'payment.transaction'
 
-    merchant_order_id = fields.Integer(
+    merchant_order_id = fields.Char(
         string='merchant order',
     )
     store_external_id = fields.Char(
@@ -290,6 +295,7 @@ class PaymentTransaction(models.Model):
             if response.status_code == 200:
                 data = response.json()
                 _logger.info(data)
+
                 if data['status'] == 'opened':
                     tx = self.search([
                         ('reference', '=', data['external_reference']),
@@ -298,12 +304,13 @@ class PaymentTransaction(models.Model):
                     if len(tx):
                         _logger.info(tx)
 
+                        tx.amount = data['total_amount']
                         tx.merchant_order_id = str(kwargs['id'])
                         tx._set_transaction_authorized()
             else:
                 _logger.error(response.content)
 
-    def mp_qr_s2s_capture_transaction(self, kwargs):
+    def mp_qr_s2s_capture_transaction(self, **kwargs):
         acquirer_id = self.acquirer_id
 
         api_url = MP_URL + "merchant_orders/search/?external_reference=%s" % self.reference
@@ -313,18 +320,32 @@ class PaymentTransaction(models.Model):
         response = requests.get(api_url, headers=headers)
         if response.status_code == 200: 
             data = response.json()
+            _logger.info(data)
+            self.amount = data['elements'][0]['total_amount']
             order = data['elements'][0]
-            if order['status'] == 'pending' and self.status != 'pending':
+            if order['status'] == 'pending' and self.state != 'pending':
                 self._set_transaction_pending()
-            if order['status'] in ['opened', 'authorized'] and self.status != 'authorized':
+            if order['status'] in ['opened', 'authorized'] and self.state != 'authorized':
                 self._set_transaction_authorized()
-            if order['status'] == 'cancel' and self.status != 'cancel':
+            if order['status'] == 'cancel' and self.state != 'cancel':
                 self._set_transaction_cancel()
-            if order['status'] == 'approved' and self.status != 'done':
+            if order['status'] == 'approved' and self.state != 'done':
                 self._set_transaction_done()
 
         else:
             _logger.error(response.content)
+
+    def mp_qr_s2s_void_transaction(self, **kwargs):
+        # TODO Solo si es la ultima
+        if len(self.merchant_order_id):
+            acquirer_id = self.acquirer_id
+            user_id = acquirer_id.mp_get_user_id()
+            api_url = MP_URL + "instore/qr/seller/collectors/%s/pos/%s" % (user_id, self.pos_external_id)
+            headers = {"Authorization": "Bearer %s" %
+                       acquirer_id.mp_access_token, "Content-Type": "application/json"}
+
+            requests.delete(api_url, headers=headers)
+        self.state = 'cancel'
 
     """
     pending: El usuario no completó el proceso de pago todavía.
@@ -339,6 +360,5 @@ charged_back: Se ha realizado uncontracargo en la tarjeta de crédito del compra
 
 
 
-    def mp_qr_s2s_void_transaction(self, **kwargs):
 
     def _mp_qr_s2s_get_tx_status(self):"""

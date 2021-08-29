@@ -39,7 +39,6 @@ odoo.define("pos_qr_base.payment", function (require) {
     show: function (reset) {
       console.log("get QR");
       this.$(".qr_tr").click(function () {
-        console.log("Hooo");
       });
       this._super();
 
@@ -59,7 +58,6 @@ odoo.define("pos_qr_base.payment", function (require) {
        this.$(".get_payment_qr").click(function (ev) {
           var paymentMethod = $(ev.currentTarget).attr('data-method-id');
           var line = order.selected_paymentline;
-          console.log(line);
           let data = [{paymentMethod : line.payment_method.id, amount: line.amount}]
         rpc.query({
             model: 'pos.payment.method',
@@ -93,7 +91,6 @@ odoo.define("pos_qr_base.payment", function (require) {
     },
 
     _qr_start: function(cid) {
-        console.log(cid);
         var self  = this;
         var order = this.pos.get_order();
         var partner = this.pos.get_client();
@@ -101,7 +98,7 @@ odoo.define("pos_qr_base.payment", function (require) {
             return;
         }
 
-         var line = order.selected_paymentline;
+          var line = order.selected_paymentline;
           let configId = line.pos.pos_session.config_id[0]
           let sessionId = line.pos.pos_session.id
           let data = [{
@@ -118,8 +115,10 @@ odoo.define("pos_qr_base.payment", function (require) {
             args: data,
         }).then(function (data) {
           //$(ev.currentTarget).hide();
+          line.transaction_id = data['transaction_id'];
+          line.set_amount(data['amount']) ;
+
           return self._qr_handle_response(data);
-          return true;
         });
 
 
@@ -137,7 +136,7 @@ odoo.define("pos_qr_base.payment", function (require) {
             clearTimeout(self.polling);
 
             self.polling = setInterval(function () {
-                self._poll_for_response(resolve, reject);
+                self._poll_for_response( resolve, reject);
             }, 3000);
         });
 
@@ -156,7 +155,37 @@ odoo.define("pos_qr_base.payment", function (require) {
         clearTimeout(this.polling);
     },
     _poll_for_response: function (resolve, reject) {
-       console.log(resolve);
+      let line = this.pos.get_order().selected_paymentline;
+      let configId = line.pos.pos_session.config_id[0]
+      let sessionId = line.pos.pos_session.id
+      let data = [{
+          configId:configId, 
+          sessionId:sessionId, 
+          paymentMethod : line.payment_method.id,
+          transaction_id : line.transaction_id,
+
+       }]
+
+        rpc.query({
+            model: 'pos.payment.method',
+            method: 'check_qr_transaction',
+            args: data,
+        }).then(function (data) {
+          if (data['state'] == 'pending' || data['state'] == 'aauthorized'){
+            console.log(data['state']);
+          }
+          else if (data['state'] == 'authorized'){
+            line.set_amount(data['amount']) ;
+            resolve(true);
+          }
+          else if (data['state'] == 'cancel'){
+            resolve(false);
+
+          }
+
+        });
+
+
     },
 
     _qr_cancel: function () {

@@ -10,3 +10,14 @@ class PaymentAcquirer(models.Model):
             data['store_external_id'] = config_id.mp_store_id.external_id
             data['pos_external_id'] = config_id.mp_external_id
         return self.create_order(data)
+
+    def mp_qr_pos_transaction_check(self, data):
+        if 'transaction_id' in data:
+            tx = self.env['payment.transaction'].sudo().browse(data['transaction_id'])
+            return {
+                'state': tx.state,
+                'transaction_id': tx.id,
+                'reference': tx.reference,
+                'amount': tx.amount,
+            }            
+        return {} 
