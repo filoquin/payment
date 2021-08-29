@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Mercado Pago QR payment",
+    'name': "Mercadopago Órdenes presenciales",
 
     'summary': """
-    Pago mediante QR mercado pago
+    Pago mediante QR mercadopago
     """,
 
     'description': """
-        Pago mediante QR mercado pago
+        Pago mediante QR mercadopago mercadopago Órdenes presenciales
     """,
 
     'author': "filoquin",

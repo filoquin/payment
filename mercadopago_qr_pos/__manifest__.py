@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "mercadopago QR POS",
+    'name': "point off sale mercadopago Órdenes presenciales",
 
     'summary': """
             Implementa el QR de mercado pago en el pos

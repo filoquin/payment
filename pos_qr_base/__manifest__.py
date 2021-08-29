@@ -3,7 +3,7 @@
     'name': "pos qr base",
 
     'summary': """
-        gestion de QR dentro del pos
+        Gestion de pagos con QR dentro del pos
     """,
 
     'description': """
