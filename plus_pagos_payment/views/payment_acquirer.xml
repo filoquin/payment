@@ -17,9 +17,9 @@
                 <group attrs="{'invisible': [('provider', '!=', 'plus_pagos')]}" string="plus pagos">
                     <button name="pp_get_token"  string="token" type="object"/>
                     <field attrs="{'required': [('provider', '=', 'plus_pagos')]}" name="pp_frase"/>
-                    <field attrs="{'required': [('provider', '=', 'plus_pagos')]}" name="pp_guid"/>
-                    <field attrs="{'readonly': True}" name="pp_token"/>
-                    <field attrs="{'readonly': True}" name="pp_secretkey"/>
+                    <field attrs="{'required': [('provider', '=', 'plus_pagos')]}" password="true" name="pp_guid"/>
+                    <field attrs="{'readonly': True}" groups="base.group_no_one" name="pp_token"/>
+                    <field attrs="{'readonly': True}" groups="base.group_no_one" name="pp_secretkey"/>
                 </group>
             </xpath>
         </field>

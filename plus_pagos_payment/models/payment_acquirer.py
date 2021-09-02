@@ -2,9 +2,9 @@ from odoo import fields, models, _
 from odoo.exceptions import UserError
 import requests
 from datetime import datetime,  timedelta
+import json
 import logging
 _logger = logging.getLogger(__name__)
-
 
 
 TEST_PLUSPAGOS_URL = "https://sandboxpp.asjservicios.com.ar:8082/v1/"
@@ -51,23 +51,22 @@ class PaymentAcquirer(models.Model):
     def pp_get_token(self):
         self.ensure_one()
 
-        #if self.pp_token and fields.Datetime.from_string(self.pp_token_expires) > datetime.now():
-        if self.pp_token:
+        # if self.pp_token:
+        if self.pp_token and fields.Datetime.from_string(self.pp_token_expires) > datetime.now():
             return self.pp_token
         else:
             api_url = self.pp_get_base_url() + "sesion"
+            headers = {"Content-Type": "application/json"}
 
             request_data = {
-                "frase": self.pp_frase,
-                "guid": self.pp_guid
+                "guid": self.pp_guid,
+                "frase": self.pp_frase
             }
-            _logger.info(api_url)
-            _logger.info(request_data)
-            response = requests.post(api_url, json=request_data)
-            _logger.info(response.status_code)
-            _logger.info(response.content)
+            payload = json.dumps(request_data, indent=None)
 
-            if response.status_code == 200: 
+            response = requests.post(api_url, headers=headers, data=payload)
+
+            if response.status_code == 200:
                 res = response.json()
                 self.pp_secretkey = res['secretKey']
                 self.pp_token = res['data']
@@ -83,23 +82,22 @@ class PaymentAcquirer(models.Model):
         api_url = self.pp_get_base_url() + "caja"
         _logger.info(api_url)
 
-        headers = {"Authorization": "Bearer %s" % access_token}
+        headers = {"Authorization": "Bearer %s" % access_token,
+                   "Content-Type": "application/json"
+                   }
         request_data = {
             'Nombre': name,
             'Codigo': code,
             'NumeroSucursal': store,
             'Fixed_amount': fixed_amount,
         }
-        _logger.info(headers)
-        _logger.info(request_data)
+        payload = json.dumps(request_data, indent=None)
 
         response = requests.post(
-            api_url, headers=headers, json=request_data)
-        _logger.info(response.status_code)
-        _logger.info(response.content)
-        return {}
+            api_url, headers=headers, data=payload)
         if response.status_code == 201:
-            return response.json()['data']
+
+            return response.json()
 
         else:
             raise UserError(response.json()["message"])
@@ -122,10 +120,8 @@ class PaymentAcquirer(models.Model):
         api_url = self.pp_get_base_url() + "caja?codigo=%s" % code
         headers = {"Authorization": "Bearer %s" % access_token}
         response = requests.get(api_url, headers=headers)
-        _logger.info(response.content)
-        _logger.info(response.status_code)
         if response.status_code == 200:
-            return response.json()['data']
+            return response.json()
         else:
             return False
 
@@ -134,7 +130,8 @@ class PaymentAcquirer(models.Model):
         access_token = self.pp_get_token()
         api_url = self.pp_get_base_url() + "order/%s" % cashbox_code
 
-        headers = {"Authorization": "Bearer %s" % access_token, 'X-Ttl-Preference': timeout}
+        headers = {"Authorization": "Bearer %s" %
+                   access_token, 'X-Ttl-Preference': timeout}
         request_data = {
             'MontoTotal': str(int(amount * 10)),
             'IdTransaccionInterno': reference,
@@ -144,10 +141,8 @@ class PaymentAcquirer(models.Model):
 
         response = requests.post(
             api_url, headers=headers, json=request_data)
-        _logger.info(response.content)
-        _logger.info(response.status_code)
         if response.status_code == 201:
-            return response.json()['data']
+            return response.json()  
 
         else:
             raise UserError(response.json()["message"])

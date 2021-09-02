@@ -7,7 +7,7 @@
 		<field name="arch" type="xml">
 			<xpath expr="//div[@id='payment_methods_new']/.." position="after">
 				<h2>Plus pagos</h2>
-				<div class="row mt16 o_settings_container" id="adyen">
+				<div class="row mt16 o_settings_container" id="pp">
 					<div class="col-12 col-lg-6 o_setting_box">
 						<div class="o_setting_left_pane">
 							<field name="pp_active"/>
@@ -25,24 +25,32 @@
 								<label class="col-lg-3 o_light_label" for="pp_fixed" string="Valor fijo"/>
 								<field name="pp_fixed"/>
 							</div>
+							<button name="action_pp_add_cashbox" string="+ Add" type="object"/>
+							<button name="action_pp_unlink_cashbox" string="- Del" type="object"/>
+						</div>
+					</div>
+					<div attrs="{'invisible':[('pp_active','=', False)]}" class="col-12 col-lg-6 o_setting_box">
+						<div class="o_setting_left_pane"/>
+						<div class="o_setting_right_pane">
 							<div>
-								<label class="col-lg-3 o_light_label" for="pp_qr" string="URL qr"/>
-								<field name="pp_qr"/>
+								<label class="col-lg-3 o_light_label" for="pp_qr_url" string="URL qr"/>
+								<field name="pp_qr_url" attrs="{'readonly':True}"/>
+							</div>
+							<div>
+								<label class="col-lg-3 o_light_label" for="pp_qr" string="QR"/>
+								<field name="pp_qr" attrs="{'readonly':True}"/>
 							</div>
 							<div>
 								<label class="col-lg-3 o_light_label" for="pp_guid" string="GUID"/>
-								<field name="pp_guid"/>
+								<field name="pp_guid" attrs="{'readonly':True}"/>
 							</div>
 							<div>
-								<label class="col-lg-3 o_light_label" for="pp_cashbox_id" string="ID de caja"/>
+								<label class="col-lg-3 o_light_label" for="pp_cashbox_id" string="ID de caja" attrs="{'readonly':True}"/>
 								<field name="pp_cashbox_id"/>
 							</div>
-
-							<button name="action_pp_add_cashbox" string="+ Add" type="object"/>
-							<button name="action_pp_unlink_cashbox" string="- Del" type="object"/>
 							<button name="action_pp_get_cashbox" string="Get" type="object"/>
 							<button name="action_pp_create_order" string="Test" type="object"/>
-
+							<button name="action_pp_url2base64" string="Update QR" type="object"/>
 						</div>
 					</div>
 				</div>

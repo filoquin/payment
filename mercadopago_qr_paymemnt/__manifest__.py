@@ -7,7 +7,7 @@
     """,
 
     'description': """
-        Pago mediante QR mercadopago mercadopago Órdenes presenciales
+        Pago mediante QR mercadopago 
     """,
 
     'author': "filoquin",
