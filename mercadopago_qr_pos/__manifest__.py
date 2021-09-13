@@ -16,7 +16,7 @@
     'category': 'sale',
     'version': '13.0.0.0.1',
 
-    'depends': ['point_of_sale', 'payment', 'mercadopago_qr_paymemnt', 'pos_qr_base'],
+    'depends': ['point_of_sale', 'payment', 'mercadopago_qr_payment', 'pos_qr_base'],
 
     'data': [
         #'data/pos_payment_method.xml',

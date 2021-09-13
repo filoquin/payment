@@ -19,7 +19,7 @@
     'depends': ['payment'],
 
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/payment_acquirer.xml',
         'data/payment_acquirer_data.xml',
         

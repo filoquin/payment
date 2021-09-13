@@ -13,8 +13,10 @@
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_qr_title"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_qr_description"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_default_partner_id"/>
+					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_ipn_url"/>
+					
 					<span colspan="4">
-						<field name="store_ids">
+						<field name="store_ids" widget="one2many_list">
 							<tree>
 								<field name="name"/>
 								<field name="external_id"/>
@@ -43,7 +45,7 @@
 					<group col="4">
 						<field name="mp_id" groups="base.group_no_one"/>
 						<field name="acquirer_id" attrs="{'invisible':True}"/>
-						<field name="external_id" attrs="{'readonly':[('mp_id' ,'!=', 0)]}"/>
+						<field name="external_id" attrs="{'readonly':[('mp_id' ,'!=', 0)],'required':[('mp_id' ,'=', 0)]}"/>
 					</group>
 					<group col="4" string="address">
 						<field name="country_name"/>

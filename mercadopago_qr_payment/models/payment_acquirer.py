@@ -3,6 +3,8 @@ from odoo.exceptions import UserError
 import requests
 from datetime import datetime,  timedelta
 import logging
+from odoo.http import request
+
 _logger = logging.getLogger(__name__)
 
 
@@ -40,6 +42,18 @@ class PaymentAcquirer(models.Model):
         'res.partner',
         string='Default partner',
     )
+    mp_ipn_url = fields.Char(
+        string='IPN base URL',
+        default=lambda self: self.mp_base_url()
+    )
+
+    def mp_base_url(self):
+        url = ''
+        if request:
+            url = request.httprequest.url_root
+
+        return url or self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+
 
     def _get_feature_support(self):
         feature_support = super()._get_feature_support()
@@ -128,6 +142,8 @@ class PaymentAcquirer(models.Model):
         tx_obj = self.env['payment.transaction']
         tx = tx_obj.sudo().create(values)
         tx.sudo().s2s_do_transaction()
+        # tx.sudo()._set_transaction_authorized()
+
         return {
             'state': tx.state,
             'transaction_id': tx.id,
@@ -144,8 +160,8 @@ class PaymentAcquirer(models.Model):
                    self.mp_access_token, "Content-Type": "application/json"}
 
         base_url = self.get_base_url()
-        base_url = "https://hormigag.ar/"
-        base_url = "http://181.171.155.178:8013/"
+        #base_url = "https://hormigag.ar/"
+        #base_url = "http://181.171.155.178:8013/"
 
         external_reference = "%s-%s-%s" % (data['pos_external_id'], data[
                                            'reference'], fields.Datetime.now())
@@ -153,7 +169,7 @@ class PaymentAcquirer(models.Model):
             "external_reference": external_reference,
             "title": data['name'],
             "description": "Odoo QR",
-            "notification_url":  base_url + 'mercadopago_qr_payment/ipn',
+            "notification_url":  base_url + 'mercadopago_qr_payment/ipn/%s' % self.id,
             "total_amount": data['amount'],
             "items": [
                 {
@@ -198,8 +214,8 @@ class PaymentAcquirer(models.Model):
         return True
 
     def qr_prepare_transaction(self, data):
-        external_reference = "%s-%s-%s" % (data['pos_external_id'], data[
-                                           'reference'], fields.Datetime.now())
+        external_reference = data['reference']
+
         if 'partner_id' in data:
             partner_id = self.env['res.partner'].browse(data['partner_id'])
         else:
@@ -216,6 +232,7 @@ class PaymentAcquirer(models.Model):
             'store_external_id': str(data['store_external_id']),
             'pos_external_id': str(data['pos_external_id']),
         }
+        _logger.info(values)
         return values
 
 
@@ -244,15 +261,13 @@ class PaymentTransaction(models.Model):
         headers = {"Authorization": "Bearer %s" %
                    acquirer_id.mp_access_token, "Content-Type": "application/json"}
 
-        base_url = acquirer_id.get_base_url()
-        base_url = "https://hormigag.ar/"
-        base_url = "http://181.171.155.178:8013/"
+        base_url = self.acquirer_id.mp_ipn_url
 
         request_data = {
             "external_reference": self.reference,
             "title": acquirer_id.mp_qr_title,
             "description": acquirer_id.mp_qr_description,
-            "notification_url":  base_url + 'mercadopago_qr_payment/ipn',
+            "notification_url":  base_url + 'mercadopago_qr_payment/ipn/%s' % self.acquirer_id.id,
             "total_amount": self.amount,
             "items": [
                 {
@@ -280,8 +295,10 @@ class PaymentTransaction(models.Model):
             raise UserError(response.content)
 
     def mp_qr_process_ipn(self, kwargs):
-        acquirer_id = self.env['payment.acquirer'].search([('provider', '=', 'mp_qr')], limit=1)
-        _logger.info(kwargs)
+        acquirer_id = self.env['payment.acquirer'].search([
+            ('provider', '=', 'mp_qr'), 
+            ('id', '=', kwargs['acquirer_id'])
+            ], limit=1)
 
         if kwargs['topic'] == 'merchant_order':
             api_url = MP_URL + "merchant_orders/%s" % kwargs['id']
@@ -289,12 +306,9 @@ class PaymentTransaction(models.Model):
                        acquirer_id.mp_access_token, "Content-Type": "application/json"}
 
             response = requests.get(api_url, headers=headers)
-            _logger.info(response.content)
-            _logger.info(response.status_code)
 
             if response.status_code == 200:
                 data = response.json()
-                _logger.info(data)
 
                 if data['status'] == 'opened':
                     tx = self.search([
@@ -302,7 +316,6 @@ class PaymentTransaction(models.Model):
                         #('acquirer_id.provider', '=', 'mp_qr')
                     ])
                     if len(tx):
-                        _logger.info(tx)
 
                         tx.amount = data['total_amount']
                         tx.merchant_order_id = str(kwargs['id'])
@@ -320,7 +333,6 @@ class PaymentTransaction(models.Model):
         response = requests.get(api_url, headers=headers)
         if response.status_code == 200: 
             data = response.json()
-            _logger.info(data)
             self.amount = data['elements'][0]['total_amount']
             order = data['elements'][0]
             if order['status'] == 'pending' and self.state != 'pending':

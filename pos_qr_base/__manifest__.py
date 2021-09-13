@@ -22,6 +22,8 @@
         'security/ir.model.access.csv',
         'views/point_of_sale.xml',
         'views/payment_method_view.xml',
+        'views/pos_payment.xml',
+        'views/payment_transaction.xml',
     ],
     'qweb': [
         'static/src/xml/pos.xml',

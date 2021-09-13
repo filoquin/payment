@@ -17,7 +17,7 @@ class MpStore(models.Model):
         'payment.acquirer',
         string='acquirer',
         default=lambda self: self.env.ref(
-            'mercadopago_qr_paymemnt.payment_acquirer_mp_qr').id
+            'mercadopago_qr_payment.payment_acquirer_mp_qr').id
     )
     name = fields.Char(
         string='Name',
@@ -26,7 +26,6 @@ class MpStore(models.Model):
     )
     external_id = fields.Char(
         string='Store external id',
-        required=True,
     )
     business_hours_ids = fields.Many2many(
         'mp.store.business_hours',

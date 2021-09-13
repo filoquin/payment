@@ -10,6 +10,8 @@ odoo.define("pos_qr_base.payment", function (require) {
 
   var _t = core._t;
 
+
+
   var PaymentTransactionPopupQRWidget = PopupWidget.extend({
       template: 'PaymentTransactionPopupQRWidget',
       show: function (options) {
@@ -94,6 +96,8 @@ odoo.define("pos_qr_base.payment", function (require) {
         var self  = this;
         var order = this.pos.get_order();
         var partner = this.pos.get_client();
+        var entropy = Date.now();
+
         if (!order) {
             return;
         }
@@ -105,17 +109,20 @@ odoo.define("pos_qr_base.payment", function (require) {
               configId:configId, 
               sessionId:sessionId, 
               name: line.order.name, 
-              reference:line.cid, 
+              reference: order.uid + '-' + line.cid + '-' + entropy, 
               paymentMethod : line.payment_method.id, 
               amount: line.amount
            }]
+           if (order.attributes.client?.id){
+             data[0]['partner_id'] = order.attributes.client?.id;
+           }
         return rpc.query({
             model: 'pos.payment.method',
             method: 'start_qr_transaction',
             args: data,
         }).then(function (data) {
-          //$(ev.currentTarget).hide();
-          line.transaction_id = data['transaction_id'];
+          console.log(data['transaction_id']);
+          line.active_transaction_id = data['transaction_id'];
           line.set_amount(data['amount']) ;
 
           return self._qr_handle_response(data);
@@ -162,7 +169,7 @@ odoo.define("pos_qr_base.payment", function (require) {
           configId:configId, 
           sessionId:sessionId, 
           paymentMethod : line.payment_method.id,
-          transaction_id : line.transaction_id,
+          transaction_id : line.active_transaction_id,
 
        }]
 
@@ -171,10 +178,18 @@ odoo.define("pos_qr_base.payment", function (require) {
             method: 'check_qr_transaction',
             args: data,
         }).then(function (data) {
-          if (data['state'] == 'pending' || data['state'] == 'aauthorized'){
+          if (data['state'] == 'pending' || data['state'] == 'authorized'){
             console.log(data['state']);
           }
-          else if (data['state'] == 'authorized'){
+          else if (data['state'] == 'cancel'){
+            //line.set_amount(data['amount']) ;
+            resolve(false);
+          }
+          else if (data['state'] == 'error'){
+            //line.set_amount(data['amount']) ;
+            resolve(false);
+          }
+          else if (data['state'] == 'aauthorized'){
             line.set_amount(data['amount']) ;
             resolve(true);
           }

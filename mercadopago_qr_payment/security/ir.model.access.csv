@@ -1,0 +1,5 @@
+"id","name","model_id/id","group_id/id","perm_read","perm_write","perm_create","perm_unlink"
+"mercadopago_qr_payment.business_hours_user","Mercado pago store hours user","mercadopago_qr_payment.model_mp_store_business_hours","base.group_user","True","","",""
+"mercadopago_qr_payment.mp_store_user","Mercado pago store user","mercadopago_qr_payment.model_mp_store","base.group_user","True","","",""
+"mercadopago_qr_payment.business_hours_admin","Mercado pago store hours admin","mercadopago_qr_payment.model_mp_store_business_hours","account.group_account_manager","True","True","True","True"
+"mercadopago_qr_payment.mp_store_admin","Mercado pago store admin","mercadopago_qr_payment.model_mp_store","account.group_account_manager","True","True","True","True"
