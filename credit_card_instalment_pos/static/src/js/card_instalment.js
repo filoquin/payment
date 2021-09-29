@@ -37,10 +37,33 @@ screens.PaymentScreenWidget.include({
 
     show: function(){
             this._super();
-            console.log('show');
+            console.log('show');           
     },
     render_payment_terminal: function() {
-        var self = this;
+    	var self = this;
+    	var order = this.pos.get_order();
+    	if (!order) {
+            return;
+        }
+    	
+    	var paymentline = self.old_order.selected_paymentline
+    	
+    	if (paymentline) {
+    		this.$el.find('.instalment').change(function(){
+        		var line = order.get_paymentline(paymentline.cid);
+        		var payment_method = line.payment_method;
+        		if (payment_method) {
+        			payment_method['selected'] = $(this).val();
+        		}
+        	});
+    		
+    		var line = order.get_paymentline(paymentline.cid);
+            var payment_selected = line.payment_method.selected;
+            if (payment_selected){
+            	this.$el.find('.instalment').val(payment_selected);
+            }
+    	}
+        
         console.log('Render');
     },
 
