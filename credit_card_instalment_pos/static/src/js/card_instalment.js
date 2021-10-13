@@ -5,6 +5,9 @@ var screens = require('point_of_sale.screens');
 // Agrego los campos en la tarjeta
 models.load_fields('pos.payment.method', ['card_id','instalment_ids']);
 
+//Agrego los campos referidos a la tarjeta en el pago
+models.load_fields('pos.payment', ['card_id','instalment_id', 'card_number', 'tiket_number', 'lot_number', 'fee']);
+
 // Obtengo las cuotas y las asifno a sus metodos de pago
 models.load_models([{
     model: 'account.card.instalment',
