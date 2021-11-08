@@ -2,7 +2,7 @@
 <templates id="template" inherit_id="point_of_sale.template">
     <t t-extend="PaymentScreen-Paymentlines">
         <t t-jquery=".paymentline.selected" t-operation="after">
-            <tr class="cardLine selected" t-if="line.payment_method.card_id">
+            <tr class="cardLine selected" t-if="line.payment_method.card_id and line.payment_status != 'done'">
                 <td ><i class="fa fa-lg fa-credit-card"></i></td>
                 <td colspan="2">
                     <select class="instalment" name="instalment" >
@@ -14,10 +14,46 @@
                         </option>
                     </t>
                     </select>
-            </td>
-                <td ></td>
+            	</td>
+                <td colspan="2">
+                	<button id="btnData">Cargar datos</button>
+                </td>
                 <td ></td>
             </tr>
         </t>
     </t>
+    
+	<t t-name="PaymentCardsPopupWidget">
+	    <div role="dialog" class="modal-dialog">
+			<div class="popup">
+				<p class="title">Payment Method Card</p>
+				<div class="body">
+					<form class="checkout_form">
+						<div class="message-error hidden"><span>DEBE COMPLETAR TODOS LOS CAMPOS!</span></div>
+						<label for="instalment">Seleccionar cantidad de cuotas: </label>
+						<div class="instalments">
+							<select class="instalment" id="selectPopupInstalments" name="instalment"></select>
+							<span class="widget-currency">$</span>
+		                	<span class="" id="amount"></span>
+		                	<span> total</span>
+						</div>
+						
+	                	<div id="form-card" class="form-field">
+							<label for="cc-number">Card number:</label>
+							<input id="cc-number" name="card_number" type="text" maxlength="6" placeholder="1111" required="required"></input>
+						</div>
+						<div id="form-lot" class="form-field">
+							<label for="lot-number">Lot number:</label>
+							<input id="lot-number" name="lot_number" type="text" maxlength="3" placeholder="123" required="required"></input>
+						</div>
+						<div id="form-ticket" class="form-field">
+							<label for="ticket-number">Ticket number:</label>
+							<input id="ticket-number" name="ticket_number" type="text" maxlength="4" placeholder="1234" required="required"></input>
+						</div>
+					</form>
+				</div>
+			</div>
+	    </div>
+	  </t>
 </templates>
+
