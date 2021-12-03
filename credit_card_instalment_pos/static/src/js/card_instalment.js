@@ -1,12 +1,13 @@
 odoo.define('pos_card_instalment.models', function (require) {
 var models = require('point_of_sale.models');
 var screens = require('point_of_sale.screens');
+var time = require('web.time');
 
 // Agrego los campos en la tarjeta
-models.load_fields('pos.payment.method', ['card_id','instalment_ids']);
+models.load_fields('pos.payment.method', ['card_id','instalment_ids', 'instalment_product_id']);
 
 //Agrego los campos referidos a la tarjeta en el pago
-models.load_fields('pos.payment', ['card_id','instalment_id', 'card_number', 'tiket_number', 'lot_number', 'fee']);
+//models.load_fields('pos.payment', ['card_id','instalment_id', 'card_number', 'tiket_number', 'lot_number', 'fee']);
 
 // Obtengo las cuotas y las asifno a sus metodos de pago
 models.load_models([{
@@ -28,6 +29,37 @@ models.load_models([{
     }
 },
 ]);
+
+var _super_Paymentline = models.Paymentline.prototype;
+    models.Paymentline = models.Paymentline.extend({
+        /*
+    TODO: esta funcion tambien deberia agregar los campos
+    init_from_JSON: function(json){
+        this.amount = json.amount;
+        this.payment_method = this.pos.payment_methods_by_id[json.payment_method_id];
+        this.payment_status = json.payment_status;
+        this.ticket = json.ticket;
+        this.card_type = json.card_type;
+        this.transaction_id = json.transaction_id;
+    },
+        */
+        export_as_JSON: function(){
+            return {
+                name: time.datetime_to_str(new Date()),
+                payment_method_id: this.payment_method.id,
+                amount: this.get_amount(),
+                payment_status: this.payment_status,
+                ticket: this.ticket,
+                card_type: this.card_type,
+                instalment_id: this.instalment_id,
+                card_number: this.card_number,
+                tiket_number: this.tiket_number,
+                lot_number: this.lot_number,
+                fee: this.fee,
+            };
+        }
+      
+    });
 
 var gui = require('point_of_sale.gui');
 var PopupWidget = require('point_of_sale.popups');
@@ -80,22 +112,31 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
         	if ($(form)[0].checkValidity() === false) {
         		self.$el.find('.message-error').removeClass('hidden');
             } else {
-            	var fd = new FormData(form[0]);
+            	let fd = new FormData(form[0]);
         	    for (var pair of fd.entries()) {
         	    	myformData[pair[0]] = pair[1]; 
         	    }
         	    
-        	    payment_method = options.line.payment_method;
-        	    var fee = self.$el.find('#selectPopupInstalments option:selected').attr('coef');
-        	    var instalment_id = self.$el.find('#selectPopupInstalments option:selected').val();
-        	    
-        	    payment_method['instalment_id'] = instalment_id;
-        	    payment_method['card_number'] = self.$el.find('#cc-number').val();
-        	    payment_method['tiket_number'] = self.$el.find('#ticket-number').val();
-        	    payment_method['lot_number'] = self.$el.find('#lot-number').val();
-        	    payment_method['fee'] = fee;
-        	    	
-        	    options.line.set_payment_status('done');
+        	    let payment_method = options.line.payment_method;
+        	    let fee = self.$el.find('#selectPopupInstalments option:selected').attr('coef');
+                let amountCof = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
+
+        	    let instalment_id = self.$el.find('#selectPopupInstalments option:selected').val();
+                let order = options.obj.pos.get_order();
+
+                let line = order.selected_paymentline;
+
+        	    line['instalment_id'] = parseInt(instalment_id);
+        	    line['card_number'] = self.$el.find('#cc-number').val();
+        	    line['tiket_number'] = self.$el.find('#ticket-number').val();
+        	    line['lot_number'] = self.$el.find('#lot-number').val();
+        	    line['fee'] = fee;
+
+                let product = options.obj.pos.db.get_product_by_id(payment_method.id);
+                order.add_product(product, {extras:{name: 'Cargo Tarjeta'}, price:fee,quantity:1, merge: false});
+           	    line.set_amount(amountCof) ;
+
+        	    line.set_payment_status('done');
         	    options.obj.render_paymentlines();
         	    self.gui.close_popup();
             }
@@ -123,13 +164,13 @@ screens.PaymentScreenWidget.include({
             return;
         }
     	
-    	var paymentline = self.old_order.selected_paymentline
+    	var paymentline = order.selected_paymentline
     	
     	if (paymentline) {
     		var line = order.get_paymentline(paymentline.cid);
     		this.$el.find('.instalment').change(function(){
-        		var payment_method = line.payment_method;
-        		if (payment_method) {
+        		if (line.payment_method) {
+        		    var payment_method = line.payment_method;
         			payment_method['selected'] = $(this).val();
         		}
         	});
@@ -143,8 +184,8 @@ screens.PaymentScreenWidget.include({
             	})
     		})
     		
-            var payment_selected = line.payment_method.selected;
-            if (payment_selected){
+            if (line.payment_method.selected){
+                var payment_selected = line.payment_method.selected;
             	self.$el.find('.instalment').val(payment_selected);
             }
     	}

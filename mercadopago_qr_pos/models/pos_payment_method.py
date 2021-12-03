@@ -17,6 +17,7 @@ class PosPaymentMethod(models.Model):
                     ('state', '=', 'opened')], limit=1)
             if session_id:
                 method_id.pos_qr_image = session_id.config_id.mp_qr
+                continue
             else:
                 method_id.pos_qr_image = False
 

@@ -8,6 +8,8 @@
 			<xpath expr="//group[@name=&quot;acquirer&quot;]" position="inside">
 				<group attrs="{'invisible': [('provider', '!=', 'mp_qr')]}" colspan="4" string="Mercadopago">
 					<button name="action_mp_create_stores" string="Create stores" type="object"/>
+					<button name="mp_get_lost_transaction" string="Lost transaction" type="object"/>
+
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_public_key"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_access_token" password="true"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_qr_title"/>

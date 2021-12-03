@@ -54,7 +54,6 @@ class PaymentAcquirer(models.Model):
 
         return url or self.env['ir.config_parameter'].sudo().get_param('web.base.url')
 
-
     def _get_feature_support(self):
         feature_support = super()._get_feature_support()
         feature_support['authorize'].append('mp_qr')
@@ -150,7 +149,7 @@ class PaymentAcquirer(models.Model):
             'reference': tx.reference,
             'amount': tx.amount,
         }
-    
+
     def xcreate_order(self, data):
 
         user_id = self.mp_get_user_id()
@@ -234,7 +233,46 @@ class PaymentAcquirer(models.Model):
         }
         _logger.info(values)
         return values
+    
+    def mp_get_lost_transaction(self, **kwargs):
 
+        api_url = MP_URL + "merchant_orders/search"
+        payload = {"date_created_from": "2021-08-04T10:55:21.254-04:00",
+                   "date_created_to": "2021-09-10T10:55:21.254-04:00",
+                   "order_status": 'paid'}
+        headers = {"Authorization": "Bearer %s" %
+                   self.mp_access_token, "Content-Type": "application/json"}
+        response = requests.get(api_url, headers=headers, params=payload)
+        _logger.info(response.content)
+        if response.status_code == 200:
+            data = response.json()
+            if not data['elements']:
+                return  
+            for order in data['elements']:
+                if order['external_reference'] and len(order['payments']):
+                    tx = self.env['payment.transaction'].sudo().search(
+                        [('reference', '=', order['external_reference']),
+                         #('acquirer_id', '=', self.id)
+                         ],
+                    )
+                    _logger.info(order)
+                    _logger.info(tx)
+                    if not len(tx): 
+                        values = {
+                            'amount': order['total_amount'],
+                            'acquirer_id': self.id,
+                            'type': 'server2server',
+                            'currency_id': self.env.user.company_id.currency_id.id,
+                            'reference': order['external_reference'],
+                            'partner_id': self.mp_default_partner_id.id,
+                            'partner_country_id': self.mp_default_partner_id.country_id.id,
+                            #'store_external_id': str(data['store_external_id']),
+                            #'pos_external_id': str(data['pos_external_id']),
+                        }
+                        tx_obj = self.env['payment.transaction']
+                        tx = tx_obj.sudo().create(values)
+
+                        
 
 class PaymentTransaction(models.Model):
 
@@ -296,9 +334,9 @@ class PaymentTransaction(models.Model):
 
     def mp_qr_process_ipn(self, kwargs):
         acquirer_id = self.env['payment.acquirer'].search([
-            ('provider', '=', 'mp_qr'), 
+            ('provider', '=', 'mp_qr'),
             ('id', '=', kwargs['acquirer_id'])
-            ], limit=1)
+        ], limit=1)
 
         if kwargs['topic'] == 'merchant_order':
             api_url = MP_URL + "merchant_orders/%s" % kwargs['id']
@@ -323,6 +361,9 @@ class PaymentTransaction(models.Model):
             else:
                 _logger.error(response.content)
 
+
+
+
     def mp_qr_s2s_capture_transaction(self, **kwargs):
         acquirer_id = self.acquirer_id
 
@@ -331,7 +372,7 @@ class PaymentTransaction(models.Model):
                    acquirer_id.mp_access_token, "Content-Type": "application/json"}
 
         response = requests.get(api_url, headers=headers)
-        if response.status_code == 200: 
+        if response.status_code == 200:
             data = response.json()
             self.amount = data['elements'][0]['total_amount']
             order = data['elements'][0]
@@ -352,7 +393,9 @@ class PaymentTransaction(models.Model):
         if len(self.merchant_order_id):
             acquirer_id = self.acquirer_id
             user_id = acquirer_id.mp_get_user_id()
-            api_url = MP_URL + "instore/qr/seller/collectors/%s/pos/%s" % (user_id, self.pos_external_id)
+            api_url = MP_URL + \
+                "instore/qr/seller/collectors/%s/pos/%s" % (
+                    user_id, self.pos_external_id)
             headers = {"Authorization": "Bearer %s" %
                        acquirer_id.mp_access_token, "Content-Type": "application/json"}
 

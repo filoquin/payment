@@ -19,6 +19,7 @@
         'views/pos_payment_method.xml',
         'views/pos_make_payment.xml',
         'views/point_of_sale.xml',
+        'views/pos_payment.xml',
     ],
     'qweb': [
         'static/src/xml/card_instalment.xml',

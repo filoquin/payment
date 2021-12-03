@@ -22,7 +22,7 @@
                     <field name="card_number"/>
                     <field name="tiket_number"/>
                     <field name="lot_number"/>
-                    <field name="magnet_bar" attrs="{'invisible':   True}" password="True"/>
+                    <field name="clearing_date"/>
                     <field name="discount"/>
                     <field name="bank_discount"/>
                     <field name="discount_amount"/>
