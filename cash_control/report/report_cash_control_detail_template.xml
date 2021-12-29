@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+	<template id="report_cash_detail_control">
+    	<t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+          <t t-set="lang" t-value="o.user_ids[0].sudo().lang"/>
+        	<t t-call="web.external_layout">
+              <div class="page">
+                <section class="s_title">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-md-12" style="font-size: 22px;">
+                        <h1 class="text-center">
+                             <b><u><t t-esc="title"/> </u></b>
+                        </h1>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <hr class="s_separator"/>
+              <section class="s_text_block">
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-12 mt16 mb0"><p/>
+                      <div class="text-center">
+                          <h2>Detalle de Dinero Consolidado</h2>
+                          <span t-field="o.name"/>
+                          <span t-field="o.date_start"/>
+                          <span t-field="o.date_end"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12 mt16 mb0"><p/>
+                      <table class="table table-bordered">
+                        <tbody>
+                          <tr>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Fecha</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Factura</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Dto.</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Monto</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Acum.</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Nro.</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Cuotas</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">LP</font></b></td>
+                          </tr>
+                          <t t-foreach="o.statement_ids" t-as="statement">
+                            <tr>
+                              <td></td>
+                              <td><b>Medio de Pago <span t-field="statement.journal_id.name"/></b></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                            <t t-set="sum_amount" t-value="0"/>
+                            <t t-foreach="statement.line_ids" t-as="line">
+                              <t t-if="line.transaction_type not in ['MONEY_OUT','MONEY_IN','TRANSFER_OUT','TRANSFER_IN']">
+                                <tr>
+                                  <td><span t-field="line.payment_statement_id.reconciled_invoice_ids[0].invoice_date"/></td>
+                                  <td><span t-field="line.payment_statement_id.reconciled_invoice_ids[0].name"/> - <span t-field="line.partner_id.name"/></td>
+                                  <td></td>
+                                  <td><span t-field="line.payment_statement_id.amount"/></td>
+                                  <t t-set="sum_amount" t-value="sum_amount+line.payment_statement_id.amount"/>
+                                  <td><span t-esc="sum_amount"/></td>
+                                  <td><span t-field="line.payment_statement_id.tiket_number"/></td>
+                                  <td><t t-if="line.payment_statement_id.instalment_id"><span t-field="line.payment_statement_id.instalment_id.name"/></t></td>
+                                  <td></td>
+                                </tr>
+                              </t>
+                            </t>
+                            <tr>
+                              <td></td>
+                              <td><b>Total</b></td>
+                              <td></td>
+                              <td><span t-esc="sum_amount"/></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                          </t>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </section>
+          </t>
+        </t>
+    	 </t>
+	 </template>
+</data>
+</odoo>
+

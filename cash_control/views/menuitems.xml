@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <menuitem
+            id="cash_control_main_menu"
+            name="Cash Control"
+            sequence="8"
+            web_icon="cash_control,static/description/icon.png"/>
+
+        <menuitem
+            id="cash_control_config_menu_root"
+            name="Cash Control Config"
+            parent="cash_control_main_menu"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion"
+            sequence="10"/>
+
+        <menuitem
+            action="action_cash_control_config"
+            id="cash_control_config_menu"
+            name="Cash Control Config"
+            parent="cash_control_config_menu_root"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion"
+            sequence="10"/>
+
+        <menuitem
+            action="action_cash_control_session"
+            id="cash_control_session_menu"
+            name="Session"
+            parent="cash_control_config_menu_root"
+            sequence="20"/>
+
+        <menuitem
+            action="action_cash_control_transfer_cash"
+            id="cash_control_transfer_cash_menu"
+            name="Transfer Cash"
+            parent="cash_control_config_menu_root"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion"
+            sequence="30"/>
+
+        <menuitem
+            action="account_payment_group.action_account_payments_transfer"
+            id="menu_action_account_payments_transfer_to_bank"
+            parent="cash_control_config_menu_root"
+            name="Transferir Banco"
+            sequence="40"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion"/>
+
+        <menuitem id="cash_control_sale_order_menu"
+            name="Orders"
+            parent="cash_control_main_menu"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion,ba_base.blancoamor_salesman"
+            sequence="20"/>
+
+        <menuitem id="menu_sale_quotations"
+            action="sale.action_quotations_with_onboarding"
+            parent="cash_control_sale_order_menu"
+            sequence="1" groups="sales_team.group_sale_salesman"/>
+
+        <menuitem id="menu_sale_order"
+            name="Orders"
+            action="sale.action_orders"
+            parent="cash_control_sale_order_menu"
+            sequence="2" groups="sales_team.group_sale_salesman"/>
+
+        <!--menuitem
+            id="cash_control_report_menu"
+            name="Reporting"
+            parent="cash_control_main_menu"
+            groups="ba_base.blancoamor_caja,ba_base.blancoamor_administacion"
+            sequence="30"/>
+
+        <menuitem
+            id="menu_report_order_details"
+            name="Sales Details"
+            action="action_report_cash_control_details"
+            parent="cash_control_report_menu"
+            sequence="10"/-->
+
+        <menuitem
+            id="cash_control_config_root_menu"
+            name="Configuration"
+            parent="cash_control_main_menu"
+            groups="ba_base.blancoamor_administacion"
+            sequence="40"/>
+
+        <menuitem
+            action="base_multi_store.action_store"
+            id="menu_action_res_store_ba"
+            parent="cash_control_config_root_menu"
+            sequence="10"
+            />
+
+        <menuitem
+            action="account.action_account_journal_form"
+            id="menu_action_account_journal_form_ba"
+            parent="cash_control_config_root_menu"
+            sequence="20"
+            />
+
+        <menuitem 
+            action="credit_card_instalment.action_account_card" 
+            id="action_account_card" 
+            parent="cash_control_config_root_menu" 
+            sequence="30"/>
+        <menuitem 
+            action="credit_card_instalment.action_card_instalment" 
+            id="action_card_instalment_menu" 
+            parent="cash_control_config_root_menu"
+            sequence="30"/>
+
+    </data>
+</openerp>

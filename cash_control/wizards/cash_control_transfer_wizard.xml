@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_cash_control_transfer_wizard" model="ir.ui.view">
+            <field name="name">cash.control.transfer.wizard.form</field>
+            <field name="model">cash.control.transfer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Transfer">
+                    <group>
+                        <field name="orig_journal_id" context="{'filter_journals': 1}"/>
+                        <field name="operation" required="True" attrs="{'invisible': [('is_acum_cash_control','!=',True)]}"/>
+                        <field name="dest_cash_control_id"
+                            attrs="{
+                                'invisible':[('operation','not in',['transfer_to_cash'])],
+                                'required':[('operation','in',['transfer_to_cash'])]
+                            }"
+                        />
+                        <field name="bank_journal_id"
+                            attrs="{
+                                'invisible':[('operation','not in',['transfer_to_bank'])],
+                                'required':[('operation','in',['transfer_to_bank'])]
+                            }"
+                        />
+                        <field name="amount"/>
+                        <field name="is_acum_cash_control" invisible="1" />
+                    </group>
+                    <footer>
+                        <button name="transfer_cash" string="Transfer Cash" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_cash_control_transfer_wizard" model="ir.actions.act_window">
+            <field name="name">Transfer</field>
+            <field name="res_model">cash.control.transfer.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+
+</odoo>

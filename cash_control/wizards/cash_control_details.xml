@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_pos_details_wizard" model="ir.ui.view">
+            <field name="name">cash.control.details.wizard.form</field>
+            <field name="model">cash.control.details.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Sales Details">
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+                    <group>
+                        <field name="cash_control_config_ids" mode="tree" colspan="4" nolabel="1" />
+                    </group>
+                    <footer>
+                        <button name="generate_report" string="Print" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_report_cash_control_details" model="ir.actions.act_window">
+            <field name="name">Sales Details</field>
+            <field name="res_model">cash.control.details.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+
+</odoo>

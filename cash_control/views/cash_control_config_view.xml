@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="cash_control_config_kanban" model="ir.ui.view">
+            <field name="name">cash_control_config.kanban</field>
+            <field name="model">cash.control.config</field>
+            <field name="arch" type="xml">
+                <kanban class="oe_background_grey o_kanban_dashboard o_control_kanban o_emphasize_colors" default_group_by="store_id">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="store_id"/>
+                    <field name="user_ids" widget="many2many_tags"/>
+                    <field name="current_session_id"/>
+                    <field name="session_state_info"/>
+                    <field name="session_state"/>
+                    <field name="last_balance_end_real"/>
+
+                    <field groups="base.group_multi_company" name="company_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_color_10 oe_kanban_global_click o_has_icon o_kanban_record">
+                                <div class="o_project_kanban_main">
+                                    <div class="o_kanban_card_content">
+                                        <div class="o_kanban_primary_left">
+                                            <div class="o_primary">
+                                                <span>
+                                                    <t t-esc="record.name.value"/>
+                                                </span>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-8 ">
+                                                    <t t-as="user_id" t-foreach="record.user_ids.raw_value">
+                                                        <img class="o_image_24_cover" t-att-alt="user_id" t-att-data-member_id="user_id" t-att-src="kanban_image('res.users', 'image_128', user_id)"/>
+                                                    </t>
+                                                    <field name="last_balance_end_real"/>
+                                                    
+                                                    <field name="store_id"/>
+                                                </div>
+                                                <div class="col-4 ">
+                                                    <button attrs="{'invisible': [('current_session_id', '!=', False)]}" class="btn btn-primary oe_highlight" context="{'balance': 'start'}" groups="ba_base.blancoamor_caja" name="open_cashbox_pos" string="Start Session" type="object">Abrir</button>
+                                                    <button attrs="{'invisible': [('session_state', '!=', 'opened')]}" class="btn btn-primary oe_highlight" context="{'balance': 'close'}" groups="ba_base.blancoamor_caja" name="open_cashbox_pos" string="Set Closing Cash" type="object">Arqueo</button>
+                                                    <button attrs="{'invisible': [('session_state', '!=', 'opened')]}" class="btn btn-primary oe_highlight" groups="ba_base.blancoamor_caja" name="close_session" string="Close Session" type="object">Cerrar</button>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <span>
+                                                        <field name="current_session_id"/>
+                                                    </span>
+                                                    <span>
+                                                        <field name="session_state_info"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="cash_control_config_tree" model="ir.ui.view">
+            <field name="name">cash.control.config.tree</field>
+            <field name="model">cash.control.config</field>
+            <field name="arch" type="xml">
+                <tree string="Cash Control Config">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="store_id"/>
+                    <field name="user_ids" widget="many2many_tags"/>
+                    <!--field name="state"/-->
+                    <field name="current_session_id"/>
+                    <field name="session_state_info"/>
+                    <field groups="base.group_multi_company" name="company_id"/>
+                    <!--<button name="open_session" attrs="{'invisible': [('current_session_id', '!=', False)]}" string="Open Session" type="object"/><button name="open_cashbox_pos" type="object" string="Start Session" context="{'balance': 'start'}" attrs="{'invisible': [('session_state', '!=', 'draft')]}"/><button name="close_session" attrs="{'invisible': [('session_state', '!=', 'opened')]}" string="Close Session" type="object"/><button name="open_cashbox_pos" type="object" string="Set Closing Cash" context="{'balance': 'close'}" attrs="{'invisible': [('session_state', '!=', 'opened')]}"/>-->
+                    <!--TODO: close session deberia mostrar el wizard de cierre de caja y al confirmar pasar a estado closed-->
+                </tree>
+            </field>
+        </record>
+        <record id="cash_control_config_form" model="ir.ui.view">
+            <field name="name">cash.control.config.form</field>
+            <field name="model">cash.control.config</field>
+            <field name="arch" type="xml">
+                <form string="Cash Control Config">
+                    <header>
+                        <button attrs="{'invisible': [('current_session_id', '!=', False)]}" class="oe_highlight" context="{'balance': 'start'}" groups="ba_base.blancoamor_caja" name="open_cashbox_pos" string="Start Session" type="object"/>
+                        <button attrs="{'invisible': [('session_state', '!=', 'opened')]}" class="oe_highlight" groups="ba_base.blancoamor_caja" name="close_session" string="Close Session" type="object"/>
+                        <button attrs="{'invisible': [('session_state', '!=', 'opened')]}" class="oe_highlight" context="{'balance': 'close'}" groups="ba_base.blancoamor_caja" name="open_cashbox_pos" string="Set Closing Cash" type="object"/>
+                        <field name="session_state_info" widget="statusbar"/>
+
+                    </header>
+                    <!-- si hay transf. pendientes le damos este mensaje -->
+                    <p attrs="{'invisible':[('transfer_pendientes','=',False)]}" class="alert alert-info" role="alert" style="margin-bottom:0px;">Existen transferencias pendientes para esta caja.
+                        <br/></p>
+                    <sheet>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Nombre de Caja"/>
+                            <h1>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" name="name" placeholder="Nombre de Caja"/>
+                            </h1>
+                            <div name="options">
+                                <div>
+                                    <field name="is_acum_cash_control"/>
+                                    <label for="is_acum_cash_control"/>
+                                </div>
+                                <div>
+                                    <field name="is_main_cash_control"/>
+                                    <label for="is_main_cash_control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="session_state" invisible="True"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" name="code"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)],'invisible':[('is_main_cash_control','=',True)],'required':[('is_main_cash_control','=',False)]}" name="store_id"/>
+                                <field domain="[('store_ids','=',store_id),]" name="user_ids" required="True" widget="many2many_tags"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" name="amount_authorized_diff"/>
+                                <field groups="ba_base.blancoamor_administacion" name="session_sequence_id" readonly="True"/>
+                            </group>
+                            <group>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" name="company_id"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)],'required': ['&amp;',('is_acum_cash_control', '=', False),('is_main_cash_control', '=', False)],'invisible': ['|',('is_acum_cash_control', '=', True),('is_main_cash_control', '=', True)],}" domain="[('store_id','=',store_id),                                         ('type','=','sale'),]" name="sale_journal_ids" widget="many2many_tags"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" domain="[                                         ('type','in',['bank','cash']),                                     ]" name="payment_journal_ids" required="True" widget="many2many_tags"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" name="currency_id" required="True"/>
+                                <field attrs="{'readonly': [('current_session_id', '!=', False)]}" context="{'default_is_a_template': True, 'current_currency_id': currency_id}" domain="[('is_a_template', '=', True)]" name="default_cashbox_id"/>
+                                <field name="current_session_id" readonly="1"/>
+                                <field invisible="1" name="journal_id"/>
+                                <field invisible="1" name="transfer_pendientes"/>
+                            </group>
+                        </group>
+                        <group class="col-md-12" style="margin-left: 140px;">
+                            <group class="col-md-7">
+                                <div style="margin:0;padding:0;">
+                                    <group style="margin:0;padding:0;">
+                                        <field name="statement_balance_start" options="{'currency_field': 'currency_id'}" readonly="1" string="Starting Cash" style="text-align:right;margin:0;padding:0;" widget="monetary"/>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <field name="statement_total_entry_encoding" options="{'currency_field': 'currency_id'}" string="+ Transactions" style="text-align:right;margin:0;padding:0;" widget="monetary"/>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <field name="statement_balance_end" options="{'currency_field': 'currency_id'}" string="= Expected in Cash" style="text-align:right;margin:0;padding:0;" widget="monetary"/>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <field name="statement_balance_end_real" options="{'currency_field': 'currency_id'}" string="Actual in Cash" style="text-align:right;margin:0;padding:0;" widget="monetary"/>
+                                    </group>
+                                </div>
+                                <div style="margin:0;padding:0;">
+                                    <group style="margin:0;padding:0;">
+                                        <button attrs="{'invisible':[('session_state_info', '!=', 'draft')]}" class="oe_inline oe_link" context="{'balance': 'start'}" name="open_cashbox_pos" type="object">Set Starting Cash</button>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <button attrs="{'invisible' : [('session_state_info', '=', 'closed')]}" class="oe_inline oe_link" name="%(action_pos_box_out)d" type="action">Cash In/Out</button>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <button attrs="{'invisible' : [('session_state_info', 'in', ['draft','closed'])]}" class="oe_inline oe_link" context="{'default_orig_journal_id': journal_id,'default_amount': statement_balance_end,'default_is_acum_cash_control': is_acum_cash_control}" name="%(action_cash_control_transfer_wizard)d" type="action">Transfer Cash</button>
+                                    </group>
+                                    <group attrs="{'invisible' : [('session_state_info', 'in', ['draft'])]}" style="margin:0;padding:0;">
+                                        <button attrs="{'invisible': [('session_state_info', 'not in', ['opened'])]}" class="oe_inline oe_link" context="{'balance': 'close'}" name="open_cashbox_pos" type="object">Set Closing Cash</button>
+                                    </group>
+                                </div>
+                            </group>
+                        </group>
+                        <div attrs="{'invisible' : [('session_state_info', 'in', ['draft','closed'])]}" class="col-md-4" style="height: 30px">
+                            <group class="oe_subtotal_footer">
+                                <field decoration-danger="statement_difference != 0" name="statement_difference" options="{'currency_field': 'currency_id'}" widget="monetary"/>
+                            </group>
+                        </div>
+                        <notebook>
+                            <page attrs="{'invisible' : [('session_state_info', '=', ['draft','closed'])]}" name="journals" string="Payment Methods">
+                                <separator string="Summary by Payment Methods"/>
+                                <field name="payment_summary_ids">
+                                    <tree string="Statements">
+                                        <field name="journal_id"/>
+                                        <field name="amount"/>
+                                    </tree>
+                                </field>
+                                <field name="statement_ids" nolabel="1">
+                                    <tree string="Statements">
+                                        <field name="name"/>
+                                        <field name="journal_id"/>
+                                        <field name="balance_start"/>
+                                        <field name="total_entry_encoding"/>
+                                        <field name="balance_end_real"/>
+                                        <field name="difference"/>
+                                        <field groups="base.group_multi_currency" name="currency_id"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <!--page name="orders" string="Orders"><field name="sale_order_ids" readonly="True"/></page><page name="payments" string="Payments"><field name="payment_ids" readonly="True"/></page-->
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_cash_control_config" model="ir.actions.act_window">
+            <field name="name">Cash Control Config</field>
+            <field name="res_model">cash.control.config</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--record id="group_cash_control_manager" model="res.groups">
+        <field name="name">Cash Control Manager</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record-->
+    <record id="rule_global_cash_control" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Global Cash Control</field>
+        <field name="model_id" search="[('model','=','cash.control.config')]" model="ir.model"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_administacion')])]"/>
+        <field eval="1" name="perm_unlink"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_create"/>
+    </record>
+
+    <record id="rule_own_cash_control" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Own Cash Control</field>
+        <field name="model_id" search="[('model','=','cash.control.config')]" model="ir.model"/>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_caja')])]"/>
+        <field name="domain_force">[
+            '|',
+            ('user_ids','=',user.id),
+            '|',
+            ('is_main_cash_control','=',True),
+            '&amp;',
+            ('is_acum_cash_control','=',True),
+            ('store_id','child_of',[user.store_id.id])]
+        </field>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="0" name="perm_create"/>
+        <field eval="0" name="perm_unlink"/>
+    </record>
+
+    <record id="rule_global_cash_control_session" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Global Cash Control Session</field>
+        <field name="model_id" search="[('model','=','cash.control.session')]" model="ir.model"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_administacion')])]"/>
+        <field eval="1" name="perm_unlink"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_create"/>
+    </record>
+
+    <record id="rule_own_cash_control_session" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Own Cash Control Session</field>
+        <field name="model_id" search="[('model','=','cash.control.session')]" model="ir.model"/>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_caja')])]"/>
+        <field name="domain_force">[('user_ids','=',user.id)]</field>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_create"/>
+        <field eval="0" name="perm_unlink"/>
+    </record>
+
+    <record id="rule_global_cash_control_transfer_cash" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Global Cash Control Transfer Cash</field>
+        <field name="model_id" search="[('model','=','cash.control.transfer.cash')]" model="ir.model"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_administacion')])]"/>
+        <field eval="1" name="perm_unlink"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_create"/>
+    </record>
+
+    <record id="rule_own_cash_control_transfer_cash" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Own Cash Control Transfer Cash</field>
+        <field name="model_id" search="[('model','=','cash.control.transfer.cash')]" model="ir.model"/>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_caja')])]"/>
+        <field name="domain_force">[
+            '|',
+            ('dest_cash_control_id.user_ids','=',user.id),
+            ('dest_cash_control_id.is_main_cash_control','=',True)]
+        </field>
+        <field eval="1" name="perm_read"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_create"/>
+        <field eval="0" name="perm_unlink"/>
+    </record>
+
+    <record id="rule_own_cash_control_transfer_cash_acum" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Acum Cash Control Transfer Cash</field>
+        <field name="model_id" search="[('model','=','cash.control.transfer.cash')]" model="ir.model"/>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_caja')])]"/>
+        <field name="domain_force">[('dest_cash_control_id.is_acum_cash_control','=',True)]</field>
+        <field eval="0" name="perm_read"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_create"/>
+        <field eval="0" name="perm_unlink"/>
+    </record>
+
+    <record id="rule_own_cash_control_transfer_cash_main" model="ir.rule" context="{'noadmin':True}">
+        <field name="name">Main Cash Control Transfer Cash</field>
+        <field name="model_id" search="[('model','=','cash.control.transfer.cash')]" model="ir.model"/>
+        <field name="groups" eval="[(6,0,[ref('ba_base.blancoamor_caja')])]"/>
+        <field name="domain_force">[('dest_cash_control_id.is_main_cash_control','=',True)]</field>
+        <field eval="0" name="perm_read"/>
+        <field eval="1" name="perm_write"/>
+        <field eval="1" name="perm_create"/>
+        <field eval="0" name="perm_unlink"/>
+    </record>
+
+
+</odoo>

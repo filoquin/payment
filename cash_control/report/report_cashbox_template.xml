@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+	<template id="report_cash_control">
+    	<t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+          <t t-set="lang" t-value="o.user_ids[0].sudo().lang"/>
+        	<t t-call="web.external_layout">
+              <div class="page">
+                <section class="s_title">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-md-12" style="font-size: 22px;">
+                        <h1 class="text-center">
+                             <b><u><t t-esc="title"/> </u></b>
+                        </h1>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <hr class="s_separator"/>
+              <section class="s_text_block">
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-12 mt16 mb0"><p/>
+                      <div class="text-center">
+                          <h2>Reporte de Caja</h2>
+                          <span t-field="o.name"/>
+                          <span t-field="o.date_start"/>
+                          <span t-field="o.date_end"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12 mt16 mb0"><p/>
+                      <table class="table table-bordered">
+                        <tbody>
+                          <tr>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Descripción</font></b></td>
+                            <td style="text-align: center;"><b><font style="font-size: 11px;">Monto</font></b></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b>Saldo Anterior</b>
+                            </td>
+                            <td>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              Peso
+                            </td>
+                            <td>
+                              <span t-field="o.statement_balance_start"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-right">
+                              Total
+                            </td>
+                            <td>
+                              <span t-field="o.statement_balance_start"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b>Ventas</b>
+                            </td>
+                            <td></td>
+                          </tr>
+                          <t t-set="sum_sales" t-value="0"/>
+                          <t t-foreach="o.statement_id.line_ids" t-as="sale">
+                            <t t-if="sale.transaction_type not in ['MONEY_OUT','MONEY_IN','TRANSFER_OUT','TRANSFER_IN']">
+                              <t t-set="sum_sales" t-value="sum_sales+sale.amount"/>
+                            </t>
+                          </t>
+                          <tr>
+                            <td>
+                              <span t-field="o.statement_id.journal_id.name"/>
+                            </td>
+                            <td>
+                              <span t-esc="sum_sales"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-right">
+                              Total
+                            </td>
+                            <td>
+                              <span t-esc="sum_sales"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b>Gastos</b>
+                            </td>
+                            <td></td>
+                          </tr>
+                          <t t-set="sum_expense" t-value="0"/>
+                          <t t-foreach="o.statement_id.line_ids" t-as="expense">
+                            <t t-if="expense.transaction_type in ['MONEY_OUT','MONEY_IN']">
+                              <tr>
+                                <td>
+                                  <span t-field="expense.name"/>
+                                  <span t-field="expense.ref"/>
+                                </td>
+                                <td>
+                                  <span t-field="expense.amount"/>
+                                  <t t-set="sum_expense" t-value="sum_expense+expense.amount"/>
+                                </td>
+                              </tr>
+                            </t>
+                          </t>
+                          <tr>
+                            <td class="text-right">
+                              Total
+                            </td>
+                            <td>
+                              <span t-esc="sum_expense"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b>Transferencia</b>
+                            </td>
+                            <td></td>
+                          </tr>
+                          <t t-set="sum_transfer" t-value="0"/>
+                          <t t-foreach="o.statement_id.line_ids" t-as="transfer">
+                            <t t-if="transfer.transaction_type == 'TRANSFER_OUT'">
+                              <tr>
+                                <td>
+                                  <span t-field="transfer.name"/>
+                                  <span t-field="transfer.ref"/>
+                                </td>
+                                <td>
+                                  <span t-field="transfer.amount"/>
+                                  <t t-set="sum_transfer" t-value="sum_transfer+transfer.amount"/>
+                                </td>
+                              </tr>
+                            </t>
+                          </t>
+                          <tr>
+                            <td class="text-right">
+                              Total
+                            </td>
+                            <td>
+                              <span t-esc="sum_transfer"/>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b>Saldo Sesión</b>
+                            </td>
+                            <td></td>
+                          </tr>
+                          <tr>
+                            <td>
+                              Peso
+                            </td>
+                            <td><span t-field="o.statement_balance_end_real"/></td>
+                          </tr>
+                          <tr>
+                            <td class="text-right">
+                              Total
+                            </td>
+                            <td>
+                              <span t-field="o.statement_balance_end_real"/>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </section>
+          </t>
+        </t>
+    	 </t>
+	 </template>
+</data>
+</odoo>
+

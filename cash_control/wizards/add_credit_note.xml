@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="add_credit_note_form" model="ir.ui.view">
+		<field name="name">add_credit_note.form</field>
+		<field name="model">sale.order.add_credit_note</field>
+		<field name="arch" type="xml">
+			<form string="description">
+				<sheet>
+					<h1>
+						<field name="order_id" readonly="True"/>
+					</h1>
+					<group>
+						<field attrs="{'invisible':True}" name="partner_id"/>
+						<field domain="[('credit','&gt;',0),('move_id.state', '=', 'posted'),('partner_id', '=', partner_id),('reconciled', '=', False), '|', ('amount_residual', '!=', 0.0),('amount_residual_currency', '!=', 0.0)]" name="move_line_id"/>
+					</group>
+				</sheet>
+				<footer>
+					<button name="action_add_credit_note"  string="Add credit Note" type="object"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+</odoo>

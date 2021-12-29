@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_account_bnk_stmt_cashbox" model="ir.ui.view">
+        <field name="name">account.bank.statement.cashbox.form</field>
+        <field name="model">account.bank.statement.cashbox</field>
+        <field name="inherit_id" ref="account.view_account_bnk_stmt_cashbox"/>
+        <field name="arch" type="xml">
+            <field name="cashbox_lines_ids" position="replace">
+                <field name="cashbox_lines_ids" nolabel="1" context="{'default_currency_id': currency_id}"
+                >
+                    <tree editable="bottom">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="number"/>
+                        <field name="coin_value" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="subtotal" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </tree>
+                </field>
+            </field>
+        </field>
+    </record>
+</odoo>

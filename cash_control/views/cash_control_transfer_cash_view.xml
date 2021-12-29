@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="cash_control_transfer_cash_tree" model="ir.ui.view">
+            <field name="name">cash.control.transfer.cash.tree</field>
+            <field name="model">cash.control.transfer.cash</field>
+            <field name="arch" type="xml">
+                <tree string="Transfer Cash">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="orig_journal_id"/>
+                    <field name="dest_journal_id"/>
+                    <field name="amount"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cash_control_transfer_cash_form" model="ir.ui.view">
+            <field name="name">cash.control.transfer.cash.form</field>
+            <field name="model">cash.control.transfer.cash</field>
+            <field name="arch" type="xml">
+                <form string="Transfer Cash">
+                    <header>
+                        <button name="action_transfer" states="draft" string="Transfer" type="object"/>
+                        <button name="action_receipt" states="transfer" string="Receipt" type="object"/>
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <group>
+                            <group>
+
+                                <field name="orig_journal_id"/>
+                                <field name="dest_cash_control_id"/>
+                                <field name="dest_journal_id"/>
+                                <field name="amount"/>
+
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="orig_statement_line_id" domain="[('journal_id','=',orig_journal_id)]"/>
+                                <field name="dest_statement_line_id" domain="[('journal_id','=',dest_journal_id)]"/>
+                            </group>
+                        </group>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_cash_control_transfer_cash" model="ir.actions.act_window">
+            <field name="name">Transfer Cash</field>
+            <field name="res_model">cash.control.transfer.cash</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</openerp>

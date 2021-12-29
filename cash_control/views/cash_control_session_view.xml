@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="cash_control_session_tree" model="ir.ui.view">
+            <field name="name">cash.control.session.tree</field>
+            <field name="model">cash.control.session</field>
+            <field name="arch" type="xml">
+                <tree string="Cash Control Session" create="false" edit="false">
+                    <field name="name"/>
+                    <field name="config_id"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cash_control_session_form" model="ir.ui.view">
+            <field name="name">cash.control.session.form</field>
+            <field name="model">cash.control.session</field>
+            <field name="arch" type="xml">
+                <form string="Cash Control Session">
+                    <header>
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <h1>
+                            <field name="name" readonly="True"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="user_ids" widget="many2many_tags" readonly="True"/>
+                                <field name="config_id" readonly="True"/>
+                            </group>
+                            <group>
+                                <field name="date_start" readonly="True"/>
+                                <field name="date_end" readonly="True"/>
+                                <!--<field name="statement_ids" widget="many2many_tags"/>-->
+                                <field name="payment_journal_ids" widget="many2many_tags" readonly="True"/>
+                                <field name="statement_id" />
+                                <field name="statement_balance_start" />
+                                <field name="statement_balance_end_real" />
+                            </group>
+                        </group>
+                        <group class="col-md-12" style="margin-left: 140px;">
+                            <group class="col-md-7">
+                                <div style="margin:0;padding:0;">
+                                    <group style="margin:0;padding:0;">
+                                        <field style="text-align:right;margin:0;padding:0;" name="statement_balance_start" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}" string="Starting Cash"/>
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                        <field style="text-align:right;margin:0;padding:0;" name="statement_total_entry_encoding" widget="monetary" options="{'currency_field': 'currency_id'}" string="+ Transactions"/>
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                        <field style="text-align:right;margin:0;padding:0;" name="statement_balance_end" widget="monetary" options="{'currency_field': 'currency_id'}" string="= Expected in Cash"/>
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                        <field style="text-align:right;margin:0;padding:0;" name="statement_balance_end_real" widget="monetary" options="{'currency_field': 'currency_id'}" string="Actual in Cash"/>
+                                    </group>
+                                </div>
+                                <div style="margin:0;padding:0;">
+                                    <!--
+                                    <group style="margin:0;padding:0;">
+                                        <button class="oe_inline oe_link" name="open_cashbox_pos" type="object" context="{'balance': 'start'}" attrs="{'invisible':['|', ('cash_control', '=', False), ('state', '!=', 'opening_control')]}">Set Starting Cash</button>
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                        <button class="oe_inline oe_link"  type="action" attrs="{'invisible' : [('state', '=', 'closed')]}">Cash In/Out</button>
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                    </group>
+                                    <group style="margin:0;padding:0;" attrs="{'invisible' : [('state', 'in', ['new_session', 'opening_control'])]}">
+                                        <button class="oe_inline oe_link" name="open_cashbox_pos" type="object" attrs="{'invisible': [('state', 'in', ['new_session', 'opening_control', 'closed'])]}" context="{'balance': 'close'}">Set Closing Cash</button>
+                                    </group>-->
+                                </div>
+                            </group>
+                        </group>
+                        <div class="col-md-4" attrs="{'invisible' : [('state', 'in', ['draft'])]}" style="height: 30px">
+                            <group class="oe_subtotal_footer">
+                                <field name="statement_difference" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-danger="statement_difference != 0"/>
+                            </group>
+                        </div>
+                        <notebook>
+                            <page name="journals" string="Payment Methods" attrs="{'invisible' : [('state', '=', 'draft')]}">
+                                <separator string="Summary by Payment Methods" />
+
+                                <field name="payment_summary_ids">
+                                    <tree string="Statements">
+                                        <field name="journal_id" />
+                                        <field name="amount" />
+                                    </tree>
+                                </field>
+                                <field name="statement_ids" nolabel="1">
+                                    <tree string="Statements">
+                                        <field name="name" />
+                                        <field name="journal_id" />
+                                        <field name="balance_start" />
+                                        <field name="total_entry_encoding" />
+                                        <field name="balance_end_real" />
+                                        <field name="difference" />
+                                        <field name="currency_id" groups="base.group_multi_currency" />
+                                        <field name="state" />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="orders" string="Orders">
+                                <field name="sale_order_ids" readonly="True"/>
+                            </page>
+                            <page name="payments" string="Payments">
+                                <field name="payment_ids" readonly="True"/>
+                            </page>
+
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_cash_control_session" model="ir.actions.act_window">
+            <field name="name">Cash Control Session</field>
+            <field name="res_model">cash.control.session</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</openerp>
