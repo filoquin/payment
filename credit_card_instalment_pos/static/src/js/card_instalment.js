@@ -1,12 +1,9 @@
 odoo.define('pos_card_instalment.models', function (require) {
-var models = require('point_of_sale.models');
-var screens = require('point_of_sale.screens');
+let models = require('point_of_sale.models');
+let screens = require('point_of_sale.screens');
 
 // Agrego los campos en la tarjeta
-models.load_fields('pos.payment.method', ['card_id','instalment_ids']);
-
-//Agrego los campos referidos a la tarjeta en el pago
-models.load_fields('pos.payment', ['card_id','instalment_id', 'card_number', 'tiket_number', 'lot_number', 'fee']);
+models.load_fields('pos.payment.method', ['card_id', 'instalment_ids', 'instalment_product_id']);
 
 // Obtengo las cuotas y las asifno a sus metodos de pago
 models.load_models([{
@@ -29,13 +26,32 @@ models.load_models([{
 },
 ]);
 
-var gui = require('point_of_sale.gui');
-var PopupWidget = require('point_of_sale.popups');
+let _super_Paymentline = models.Paymentline.prototype;
+models.Paymentline = models.Paymentline.extend({
+	init_from_JSON: function(json) {
+		_super_Paymentline.init_from_JSON.apply(this,arguments);
+        this.card_number = false;
+        this.tiket_number = false;
+        this.lot_number = false;
+        this.fee = false;
+    },
+    export_as_JSON: function() {
+    	var json_extend = _super_Paymentline.export_as_JSON.apply(this);
+    	json_extend['card_number'] = this.card_number;
+    	json_extend['tiket_number'] = this.tiket_number;
+    	json_extend['lot_number'] = this.lot_number;
+    	json_extend['fee'] = this.fee;
+        return json_extend;
+    },
+});
 
-var PaymentCardsPopupWidget = PopupWidget.extend({
+let gui = require('point_of_sale.gui');
+let PopupWidget = require('point_of_sale.popups');
+
+let PaymentCardsPopupWidget = PopupWidget.extend({
     template: 'PaymentCardsPopupWidget',
     show: function (options) {
-        var self = this;
+        let self = this;
         this._super(options);
         
         if (options) {
@@ -47,14 +63,14 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
 			}
 			
 			if (options.line) {
-				var line = options.line;
-				var amount = line.get_amount();
-				var instalments = line.payment_method.instalments;
-				var selected = line.payment_method.selected;
+				let line = options.line;
+				let amount = line.get_amount();
+				let instalments = line.payment_method.instalments;
+				let selected = line.payment_method.selected;
 				
 				for (obj in instalments){
-					var amountCof = amount * instalments[obj]['coefficient'];
-					var fee = amountCof - amount;
+					let amountCof = amount * instalments[obj]['coefficient'];
+					let fee = amountCof - amount;
 					self.$el.find("#selectPopupInstalments").append('<option value="' + instalments[obj]['id'] + '" coef="' + fee + '" amount="' + amountCof + '">' + instalments[obj]['name'] + '</option>');
 				}
 				
@@ -63,39 +79,48 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
 				} else {
 					self.$el.find('#selectPopupInstalments').val(1);
 				}
-				var amount = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
+				let amount = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
 				self.$el.find('#amount').empty().text(amount);
 			}
         }
         
         self.$el.find('#selectPopupInstalments').change(function(){
-    		var amount = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
+        	let amount = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
 			self.$el.find('#amount').empty().text(amount);
     	})
     	
         self.$el.find('#btn-accept').click(function(){
-        	var myformData = {};
-        	var form = $(".checkout_form");
+        	let myformData = {};
+        	let form = $(".checkout_form");
 
         	if ($(form)[0].checkValidity() === false) {
         		self.$el.find('.message-error').removeClass('hidden');
             } else {
-            	var fd = new FormData(form[0]);
+            	let fd = new FormData(form[0]);
         	    for (var pair of fd.entries()) {
         	    	myformData[pair[0]] = pair[1]; 
         	    }
         	    
         	    payment_method = options.line.payment_method;
-        	    var fee = self.$el.find('#selectPopupInstalments option:selected').attr('coef');
-        	    var instalment_id = self.$el.find('#selectPopupInstalments option:selected').val();
-        	    
-        	    payment_method['instalment_id'] = instalment_id;
-        	    payment_method['card_number'] = self.$el.find('#cc-number').val();
-        	    payment_method['tiket_number'] = self.$el.find('#ticket-number').val();
-        	    payment_method['lot_number'] = self.$el.find('#lot-number').val();
-        	    payment_method['fee'] = fee;
-        	    	
-        	    options.line.set_payment_status('done');
+        	    let fee = self.$el.find('#selectPopupInstalments option:selected').attr('coef');
+                let amountCof = self.$el.find('#selectPopupInstalments option:selected').attr('amount');
+
+        	    let instalment_id = self.$el.find('#selectPopupInstalments option:selected').val();
+                let order = options.obj.pos.get_order();
+
+                let line = order.selected_paymentline;
+
+        	    line['instalment_id'] = parseInt(instalment_id);
+        	    line['card_number'] = self.$el.find('#cc-number').val();
+        	    line['tiket_number'] = self.$el.find('#ticket-number').val();
+        	    line['lot_number'] = self.$el.find('#lot-number').val();
+        	    line['fee'] = fee;
+
+                let product = options.obj.pos.db.get_product_by_id(payment_method.id);
+                order.add_product(product, {extras:{name: 'Cargo Tarjeta'}, price:fee,quantity:1, merge: false});
+           	    line.set_amount(amountCof) ;
+
+        	    line.set_payment_status('done');
         	    options.obj.render_paymentlines();
         	    self.gui.close_popup();
             }
@@ -109,7 +134,7 @@ gui.define_popup({name:'payment-card', widget: PaymentCardsPopupWidget});
 screens.PaymentScreenWidget.include({
     start:function(){
         this._super();
-        var self = this;
+        let self = this;
         console.log('start');            
     },
     show: function(){
@@ -117,19 +142,19 @@ screens.PaymentScreenWidget.include({
         console.log('show');
     },
     render_payment_terminal: function() {
-    	var self = this;
-    	var order = this.pos.get_order();
+    	let self = this;
+    	let order = this.pos.get_order();
     	if (!order) {
             return;
         }
     	
-    	var paymentline = self.old_order.selected_paymentline
+    	let paymentline = order.selected_paymentline
     	
     	if (paymentline) {
-    		var line = order.get_paymentline(paymentline.cid);
+    		let line = order.get_paymentline(paymentline.cid);
     		this.$el.find('.instalment').change(function(){
-        		var payment_method = line.payment_method;
-        		if (payment_method) {
+        		if (line.payment_method) {
+        		    let payment_method = line.payment_method;
         			payment_method['selected'] = $(this).val();
         		}
         	});
@@ -143,8 +168,8 @@ screens.PaymentScreenWidget.include({
             	})
     		})
     		
-            var payment_selected = line.payment_method.selected;
-            if (payment_selected){
+            if (line.payment_method.selected){
+                let payment_selected = line.payment_method.selected;
             	self.$el.find('.instalment').val(payment_selected);
             }
     	}
@@ -152,7 +177,7 @@ screens.PaymentScreenWidget.include({
         console.log('Render');
     },
     init: function(parent,options){
-    	var self = this;
+    	let self = this;
         this._super(parent, options);
         
     	this.keyboard_keydown_handler = function(event){
@@ -163,10 +188,10 @@ screens.PaymentScreenWidget.include({
         };
 
         this.keyboard_handler = function(event){
-           var key = '';
+        	let key = '';
 
-           if (event.type === "keypress") {
-                if (event.keyCode === 13) { // Enter
+        	if (event.type === "keypress") {
+        		if (event.keyCode === 13) { // Enter
                     self.validate_order();
                 } else if ( event.keyCode === 190 || // Dot
                             event.keyCode === 110 ||  // Decimal point (numpad)
@@ -180,7 +205,7 @@ screens.PaymentScreenWidget.include({
                 } else if (event.keyCode === 43) { // Plus
                     key = '+';
                 }else{
-                 return ;
+                	return;
                 }
             } else { // keyup/keydown
                 if (event.keyCode === 46) { // Delete
