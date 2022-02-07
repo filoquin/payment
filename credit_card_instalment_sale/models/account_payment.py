@@ -1,6 +1,6 @@
 from odoo import models, api, fields, _
 from odoo.exceptions import ValidationError
-
+from datetime import timedelta
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -80,6 +80,36 @@ class AccountPayment(models.Model):
         compute='change_instalment_id',
         store=True,
     )
+
+    clearing_date = fields.Date(
+        string='Clearing Date',
+        compute='compute_clearing_date',
+        store=True,
+
+    )
+
+    @api.depends('instalment_id')
+    def compute_clearing_date(self):
+        for payment in self:
+            if len(payment.instalment_id) and len(payment.instalment_id.payment_term_id):
+                payment.clearing_date = payment.instalment_id.payment_term_id.compute(payment.amount, payment.payment_date)[0][0]
+            else:
+                payment.clearing_date = payment.payment_date 
+
+    def _prepare_payment_moves(self):
+        res = super()._prepare_payment_moves()
+        return res
+        all_moves_vals = []
+
+        for payment in self:
+            moves_vals = super()._prepare_payment_moves()
+
+            if len(payment.instalment_id) and len(payment.instalment_id.payment_term_id):
+                moves_vals['line_ids'][0]['date_maturity'] = payment.instalment_id.payment_term_id.compute(payment.amount,payment.payment_date)[0][0]
+
+            all_moves_vals += moves_vals
+
+        return all_moves_vals
 
     @api.onchange('magnet_bar')
     def _onchange_magnet_bar(self):

@@ -21,3 +21,9 @@ class PaymentAcquirer(models.Model):
                 'amount': tx.amount,
             }            
         return {} 
+
+    def get_qr_transactions(self, data):
+        if data['configId']:
+            config_id = self.env['pos.config'].browse(data['configId'])
+            data['store_external_id'] = config_id.mp_store_id.external_id
+            data['pos_external_id'] = config_id.mp_external_id

@@ -12,6 +12,12 @@ class PosPaymentMethod(models.Model):
         'account.card',
         string='Card',
     )
+    instalment_product_id = fields.Many2one(
+        'product.product',
+        string='Product to invoice',
+        related='card_id.instalment_product_id'
+    )
+    
     instalment_ids = fields.One2many(
         'account.card.instalment',
         string='Instalments',

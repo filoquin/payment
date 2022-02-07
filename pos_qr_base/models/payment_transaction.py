@@ -10,3 +10,7 @@ class PaymentTransaction(models.Model):
         string='Pos payment',
     )
 
+    pos_config_id = fields.Many2one(
+        'pos.config',
+        string='Config',
+    )

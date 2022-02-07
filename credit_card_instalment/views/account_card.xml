@@ -10,6 +10,17 @@
 			</tree>
 		</field>
 	</record>
+	<record id="account_card_search" model="ir.ui.view">
+		<field name="name">account_card.search</field>
+		<field name="model">account.card</field>
+		<field name="arch" type="xml">
+			<search string="String">
+				<field name="name"/>
+				<field name="card_type"/>
+				<filter context="{'group_by' : 'card_type'}" domain="[]" name="type" string="Type"/>
+			</search>
+		</field>
+	</record>
 	<record id="account_card_form" model="ir.ui.view">
 		<field name="name">account_card.form</field>
 		<field name="model">account.card</field>
@@ -41,7 +52,7 @@
 									<field name="bank_discount"/>
 									<field name="ctf" optional="hide"/>
 									<field name="tea" optional="hide"/>
-									<field name="accreditation_id" optional="hide"/>
+									<field name="payment_term_id" optional="hide"/>
 								</tree>
 							</field>
 						</span>

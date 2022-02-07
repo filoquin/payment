@@ -53,10 +53,11 @@ class AccountCardInstalment(models.Model):
     tea = fields.Float(
         string='TEA'
     )
-    accreditation_id = fields.Many2one(
-        'account.journal.instalment.accreditation',
+    payment_term_id = fields.Many2one(
+        'account.payment.term',
         string='Accreditation method',
     )
+
     card_type = fields.Selection(
         [('credit', 'credit'), ('debit', 'debit')],
         related="card_id.card_type"
@@ -112,3 +113,11 @@ class AccountJournalInstalmentAccreditation(models.Model):
     accreditation_closing_param = fields.Char(
         string='accreditation closing param',
     )
+
+    def compute_date(self, date_string):
+        startdate = fields.Date.fromstring(date_string)
+        res = startdate
+        if self.accreditation_method == 'after_days':
+            res = startdate + timedelta(days=int(self.accreditation_param))
+
+        return fields.Date.tostring(res)
