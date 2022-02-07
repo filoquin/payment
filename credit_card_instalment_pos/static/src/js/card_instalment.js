@@ -1,13 +1,9 @@
 odoo.define('pos_card_instalment.models', function (require) {
-var models = require('point_of_sale.models');
-var screens = require('point_of_sale.screens');
-var time = require('web.time');
+let models = require('point_of_sale.models');
+let screens = require('point_of_sale.screens');
 
 // Agrego los campos en la tarjeta
 models.load_fields('pos.payment.method', ['card_id','instalment_ids', 'instalment_product_id']);
-
-//Agrego los campos referidos a la tarjeta en el pago
-//models.load_fields('pos.payment', ['card_id','instalment_id', 'card_number', 'tiket_number', 'lot_number', 'fee']);
 
 // Obtengo las cuotas y las asifno a sus metodos de pago
 models.load_models([{
@@ -30,44 +26,36 @@ models.load_models([{
 },
 ]);
 
-var _super_Paymentline = models.Paymentline.prototype;
-    models.Paymentline = models.Paymentline.extend({
-        /*
-    TODO: esta funcion tambien deberia agregar los campos
-    init_from_JSON: function(json){
-        this.amount = json.amount;
-        this.payment_method = this.pos.payment_methods_by_id[json.payment_method_id];
-        this.payment_status = json.payment_status;
-        this.ticket = json.ticket;
-        this.card_type = json.card_type;
-        this.transaction_id = json.transaction_id;
+let _super_Paymentline = models.Paymentline.prototype;
+models.Paymentline = models.Paymentline.extend({
+	init_from_JSON: function(json) {
+		_super_Paymentline.init_from_JSON.apply(this,arguments);
+		this.card_id = false;
+		this.instalment_id = false;
+		this.card_type = false;
+        this.card_number = false;
+        this.tiket_number = false;
+        this.lot_number = false;
+        this.fee = false;
     },
-        */
-        export_as_JSON: function(){
-            return {
-                name: time.datetime_to_str(new Date()),
-                payment_method_id: this.payment_method.id,
-                amount: this.get_amount(),
-                payment_status: this.payment_status,
-                ticket: this.ticket,
-                card_type: this.card_type,
-                instalment_id: this.instalment_id,
-                card_number: this.card_number,
-                tiket_number: this.tiket_number,
-                lot_number: this.lot_number,
-                fee: this.fee,
-            };
-        }
-      
-    });
+    export_as_JSON: function() {
+    	let json_extend = _super_Paymentline.export_as_JSON.apply(this);
+    	json_extend['instalment_id'] = this.instalment_id;
+    	json_extend['card_number'] = this.card_number;
+    	json_extend['tiket_number'] = this.tiket_number;
+    	json_extend['lot_number'] = this.lot_number;
+    	json_extend['fee'] = this.fee;
+        return json_extend;
+    },
+});
 
-var gui = require('point_of_sale.gui');
-var PopupWidget = require('point_of_sale.popups');
+let gui = require('point_of_sale.gui');
+let PopupWidget = require('point_of_sale.popups');
 
-var PaymentCardsPopupWidget = PopupWidget.extend({
+let PaymentCardsPopupWidget = PopupWidget.extend({
     template: 'PaymentCardsPopupWidget',
     show: function (options) {
-        var self = this;
+        let self = this;
         this._super(options);
         
         if (options) {
@@ -79,14 +67,14 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
 			}
 			
 			if (options.line) {
-				var line = options.line;
+				let line = options.line;
 				var amount = line.get_amount();
-				var instalments = line.payment_method.instalments;
-				var selected = line.payment_method.selected;
+				let instalments = line.payment_method.instalments;
+				let selected = line.payment_method.selected;
 				
 				for (obj in instalments){
-					var amountCof = amount * instalments[obj]['coefficient'];
-					var fee = amountCof - amount;
+					let amountCof = amount * instalments[obj]['coefficient'];
+					let fee = amountCof - amount;
 					self.$el.find("#selectPopupInstalments").append('<option value="' + instalments[obj]['id'] + '" coef="' + fee + '" amount="' + amountCof + '">' + instalments[obj]['name'] + '</option>');
 				}
 				
@@ -106,8 +94,8 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
     	})
     	
         self.$el.find('#btn-accept').click(function(){
-        	var myformData = {};
-        	var form = $(".checkout_form");
+        	let myformData = {};
+        	let form = $(".checkout_form");
 
         	if ($(form)[0].checkValidity() === false) {
         		self.$el.find('.message-error').removeClass('hidden');
@@ -131,13 +119,15 @@ var PaymentCardsPopupWidget = PopupWidget.extend({
         	    line['tiket_number'] = self.$el.find('#ticket-number').val();
         	    line['lot_number'] = self.$el.find('#lot-number').val();
         	    line['fee'] = fee;
-
-                let product = options.obj.pos.db.get_product_by_id(payment_method.id);
+        	    
+        	    let product_id = parseInt(payment_method.instalment_product_id[0]);
+                let product = options.obj.pos.db.get_product_by_id(product_id);
                 order.add_product(product, {extras:{name: 'Cargo Tarjeta'}, price:fee,quantity:1, merge: false});
            	    line.set_amount(amountCof) ;
-
+           	    
         	    line.set_payment_status('done');
         	    options.obj.render_paymentlines();
+        	    order.finalized = true; //TODO: Es la única forma que encontre de que no te deje borrar los productos.
         	    self.gui.close_popup();
             }
     	})
@@ -150,7 +140,7 @@ gui.define_popup({name:'payment-card', widget: PaymentCardsPopupWidget});
 screens.PaymentScreenWidget.include({
     start:function(){
         this._super();
-        var self = this;
+        let self = this;
         console.log('start');            
     },
     show: function(){
@@ -158,19 +148,19 @@ screens.PaymentScreenWidget.include({
         console.log('show');
     },
     render_payment_terminal: function() {
-    	var self = this;
-    	var order = this.pos.get_order();
+    	let self = this;
+    	let order = this.pos.get_order();
     	if (!order) {
             return;
         }
     	
-    	var paymentline = order.selected_paymentline
+    	let paymentline = order.selected_paymentline
     	
     	if (paymentline) {
-    		var line = order.get_paymentline(paymentline.cid);
+    		let line = order.get_paymentline(paymentline.cid);
     		this.$el.find('.instalment').change(function(){
         		if (line.payment_method) {
-        		    var payment_method = line.payment_method;
+        		    let payment_method = line.payment_method;
         			payment_method['selected'] = $(this).val();
         		}
         	});
@@ -185,7 +175,7 @@ screens.PaymentScreenWidget.include({
     		})
     		
             if (line.payment_method.selected){
-                var payment_selected = line.payment_method.selected;
+                let payment_selected = line.payment_method.selected;
             	self.$el.find('.instalment').val(payment_selected);
             }
     	}
@@ -193,7 +183,7 @@ screens.PaymentScreenWidget.include({
         console.log('Render');
     },
     init: function(parent,options){
-    	var self = this;
+    	let self = this;
         this._super(parent, options);
         
     	this.keyboard_keydown_handler = function(event){
@@ -204,7 +194,7 @@ screens.PaymentScreenWidget.include({
         };
 
         this.keyboard_handler = function(event){
-           var key = '';
+           let key = '';
 
            if (event.type === "keypress") {
                 if (event.keyCode === 13) { // Enter
