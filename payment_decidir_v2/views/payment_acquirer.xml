@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="acquirer_form_decidir" model="ir.ui.view">
+        <field name="name">acquirer.form.decidir</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <!--button name="toggle_environment_value" position="before">
+                <button attrs="{'invisible': [('provider', '!=', 'decidir_v2')]}" class="oe_stat_button" icon="fa-key" name="decidir_healthcheck" type="object">
+                    <div class="o_stat_info o_field_widget">
+                        <span class="o_warning_text">Testear</span>
+                        <span class="o_stat_text">Decidir</span>
+                    </div>
+                </button>
+            </button-->
+            <xpath expr="//group[@name=&quot;acquirer&quot;]" position="inside">
+                <group attrs="{'invisible': [('provider', '!=', 'decidir_v2')]}" string="Decidir">
+                    <field name="card_ids" widget="many2many_tags"/>
+                    <field name="instalment_ids" widget="one2many_list">
+                        <tree editable="buttom">
+                            <field name="name"/>
+                        </tree>
+                    </field>
+                    <field attrs="{'required': [('provider', '=', 'decidir_v2')]}" name="decidir_commerce"/>
+                    <field attrs="{'required': [('provider', '=', 'decidir_v2')]}" name="decidir_public_key"/>
+                    <field attrs="{'required': [('provider', '=', 'decidir_v2')]}" name="decidir_secret_key"/>
+                    <field attrs="{'required': [('provider', '=', 'decidir_v2')]}" name="device_unique_identifier"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

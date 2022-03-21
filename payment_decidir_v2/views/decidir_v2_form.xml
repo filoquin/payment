@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<template id="decidir_v2_form" name="decidir v2 form">
+		<div class="form-group">
+			<label for="card_expiration_month">Mes</label>
+			<input name="card_expiration_month" type="text"/>
+		</div>
+		<div class="form-group">
+			<label for="card_expiration_year">Año</label>
+			<input name="card_expiration_year" type="text"/>
+		</div>
+		<div class="form-group">
+			<label for="security_code">Codigo</label>
+			<input name="security_code" type="password"/>
+		</div>
+		<div class="form-group">
+			<label for="card_holder_name">Nombre y Apellido</label>
+			<input name="card_holder_name" type="text"/>
+		</div>
+		<div class="form-group">
+			<label for="type">Tipo de documento</label>
+			<input name="type" type="text"/>
+		</div>
+		<div class="form-group">
+			<label for="number">DNI</label>
+			<input name="number" type="text"/>
+		</div>
+		<input name="device_unique_identifier" t-att-value="acquirer.device_unique_identifier" type="hidden"/>
+		<input name="decidir_public_key" t-att-value="acquirer.decidir_public_key" type="hidden"/>
+	</template>
+</odoo>

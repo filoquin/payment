@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="payment_acquirer_decidirv2" model="payment.acquirer">
+            <field name="name">Decidir v2</field>
+            <field name="image_128" type="base64" file="payment_decidir_v2/static/src/img/decidir_icon.png"/>
+            <field name="provider">decidir_v2</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="decidir_v2_form"/>
+            <field name="fees_implemented" eval="True"/> 
+            <field name="token_implemented" eval="True"/> 
+            <field name="authorize_implemented" eval="False"/> 
+            <field name="decidir_public_key">e9cdb99fff374b5f91da4480c8dca741</field>
+            <field name="payment_flow">form</field>
+        </record>
+
+    </data>
+</odoo>
+

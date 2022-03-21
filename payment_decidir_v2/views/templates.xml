@@ -1,0 +1,132 @@
+<odoo>
+  <template id="endop" name="Decidir endop">
+    <t t-call="portal.frontend_layout">
+      <t t-set="additional_title">Su pago online</t>
+      <div id="warp">
+        <div class="container">
+          <div class="row" t-if="transaction.state=='done'">
+            <div class="oe_structure">
+              <h1>Si pago fue realizado con exito</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </t>
+  </template>
+  <template id="assets_frontend" inherit_id="website.assets_frontend">
+    <xpath expr="script[last()]" position="after">
+      <script src="https://live.decidir.com/static/v2.5/decidir.js" type="text/javascript"/>
+      <script src="/payment_decidir_v2/static/src/js/payment_decidir_v2.js" type="text/javascript"/>
+    </xpath>
+  </template>
+  <template id="decidir2_instalment_menu" name="menu de coutas">
+    <t t-set="tree" t-value="acq.decidir2_instalment_tree(order,order_id, amount)"/>
+    <t t-set="first" t-value="True"/>
+    <div class="p-3 oe_decidir">
+      <ul class="nav nav-tabs" id="decidir" role="tablist">
+        <li class="nav-item" role="presentation" t-as="card_id" t-foreach="tree">
+          <a class="nav-link" data-toggle="tab" role="tab" t-att-aria-controls="'method-%s' % tree[card_id]['id']" t-att-href="'#method-%s' % tree[card_id]['id']" t-att-id="'%s-tab' % tree[card_id]['id']">
+            <span t-esc="tree[card_id]['name']"/>
+          </a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div role="tabpanel" t-as="card_id" t-att-aria-labelledby="'%s-tab' % tree[card_id]['id']" t-att-class="'tab-pane active' if first else 'tab-pane'" t-att-id="'method-%s' % tree[card_id]['id']" t-foreach="tree">
+          <t t-set="first" t-value="False"/>
+          <t t-as="instalments" t-foreach="tree[card_id]['instalments']">
+            <div class="pb-2 payment_dv2_start" t-att-data-acquirer_id="acq.id" t-att-data-amount="instalments['amount']" t-att-data-base-amount="instalments['base_amount']" t-att-data-fee="instalments['fee']" t-att-data-instalment_id="instalments['id']" t-att-data-method="instalments['method']">
+              <div class="weight-bold text-primary " t-if="str(instalments['instalment']) != instalments['name']">
+                <strong t-esc="instalments['name']"/>
+              </div>
+              <div>
+                <span t-esc="instalments['instalment']"/>
+                <span>cuotas de </span>
+                <strong t-esc="instalments['amount'] / instalments['instalment']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+              </div>
+              <div t-if="instalments['bank_discount']">
+                <em t-esc="instalments['bank_discount']"/>% de descuento bancario</div>
+              <div class="dropdown-divider"/>
+            </div>
+          </t>
+        </div>
+      </div>
+    </div>
+    <t t-call="payment_decidir_v2.decidir_inline_form"/>
+  </template>
+  <template id="payment_tokens_list" inherit_id="payment.payment_tokens_list" name="Payment Tokens list">
+    <xpath expr="//div[hasclass('o_payment_acquirer_select')]/label" position="after">
+      <div t-if="acq.provider == 'decidir_v2'">
+        <t t-call="payment_decidir_v2.decidir2_instalment_menu">
+          <t t-set="acquirer_id" t-value="acq"/>
+        </t>
+      </div>
+    </xpath>
+  </template>
+  <template id="decidir_inline_form" name="decidir v2 form">
+    <div class="decidir_v2_inline_form">
+      <div class="row">
+        <div class="col-sm-6">
+          <h3 class="decidir_v2_method_name"/>
+        </div>
+        <div class="col-sm-6"/>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="card_number">Numero de Tarjeta</label>
+            <div class="input-group">
+              <input autocomplete="card_number" class="form-control" data-decidir="card_number" name="card_number" placeholder="0000 0000 0000 0000"/>
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="mdi mdi-credit-card"/>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-sm-4">
+          <label for="card_expiration_month">Mes</label>
+          <input class="form-control" data-decidir="card_expiration_month" maxlength="2" name="card_expiration_month" placeholder="00" type="number"/>
+        </div>
+        <div class="form-group col-sm-4">
+          <label for="card_expiration_year">Año</label>
+          <input class="form-control" data-decidir="card_expiration_year" maxlength="2" name="card_expiration_year" placeholder="00" type="number"/>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label for="cvv">CVV/CVC</label>
+            <input class="form-control" data-decidir="security_code" maxlength="3" name="security_code" placeholder="123" type="number"/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="card_holder_name">Nombre y apellido</label>
+            <input class="form-control" data-decidir="card_holder_name" name="card_holder_name" placeholder="Como figura en la tarjeta" type="text" value=""/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="number">DNI</label>
+            <input class="form-control" data-decidir="card_holder_doc_number" name="number" type="text" value=""/>
+          </div>
+        </div>
+      </div>
+      <input data-decidir="card_holder_doc_type" name="type" type="hidden" value="dni"/>
+      <input name="publishableKey" t-att-value="acquirer_id.decidir_public_key" type="hidden"/>
+      <input name="decidir_public_key" t-att-value="acquirer_id.decidir_public_key" type="hidden"/>
+      <input name="decidir_url" t-att-value="acquirer_id.decidir_get_base_url()" type="hidden"/>
+      <input name="instalment_id" type="text"/>
+      <input name="method" type="text"/>
+      <input name="amount" type="text"/>
+      <input name="base_amount" type="text"/>
+      <input name="fees" type="text"/>
+      <input name="decidir_order_id" t-att-value="order.id if order else order_id" type="text"/>
+    </div>
+  </template>
+</odoo>

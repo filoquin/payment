@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="transaction_form" model="ir.ui.view">
+		<field name="name">transaction.form</field>
+		<field name="model">payment.transaction</field>
+		<field name="inherit_id" ref="payment.transaction_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//group[last()]" position="before" >
+				<group string="Decidir">
+					<field attrs="{'readonly':True}" name="sps_payment_method"/>
+					<field attrs="{'readonly':True}" name="sps_payment_instalment"/>
+					<field attrs="{'readonly':True}" name="sps_ticket"/>
+					<field attrs="{'readonly':True}" name="sps_card_authorization_code"/>
+					<field attrs="{'readonly':True}" name="sps_address_validation_code"/>
+				</group>
+			</xpath>
+		</field>
+	</record>
+</odoo>
