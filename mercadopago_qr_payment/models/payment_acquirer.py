@@ -234,6 +234,21 @@ class PaymentAcquirer(models.Model):
         _logger.info(values)
         return values
     
+    # Para obtener el estado del pago de manera proactiva
+    """
+        curl -X GET \
+       -H 'Authorization: Bearer $ACCESS_TOKEN' \
+       https://api.mercadopago.com/merchant_orders?external_reference=$EXTERNAL_REFERENCE 
+        """
+    """
+        Obtener un pago por id que figura en el cliente 
+        https://www.mercadopago.com.ar/developers/es/reference/payments/_payments_id/get
+    """
+    """
+    Manejo oauth
+    https://www.mercadopago.com.ar/developers/es/guides/security/oauth
+    """
+
     def mp_get_lost_transaction(self, **kwargs):
 
         api_url = MP_URL + "merchant_orders/search"
