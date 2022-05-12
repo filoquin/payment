@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="parcial_refund_form" model="ir.ui.view">
+		<field name="name">parcial_refund.form</field>
+		<field name="model">payment.transaction.parcial.refund</field>
+		<field name="arch" type="xml">
+			<form string="Refund">
+				<sheet>
+					<h1>
+						<field name="payment_id" attrs="{'readonly':True}"/>
+					</h1>
+					<group>
+						<field name="amount"/>
+					</group>
+				</sheet>
+				<footer>
+					<button name="action_refund" string="Refund" type="object"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+</odoo>

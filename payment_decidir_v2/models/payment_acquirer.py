@@ -53,13 +53,83 @@ class PaymentAcquirer(models.Model):
             raise UserError(_("Decidir is disabled"))
 
     def decidir_healthcheck(self):
-        api_url = self. decidir_get_base_url() + 'healthcheck'
+        api_url = self. decidir_get_base_url() + '/healthcheck'
         response = requests.get(api_url, data={})
         if response.status_code == 200:
             res = response.json()
             # to do oki?
         else:
             raise UserError(_("Decidir healthcheck error"))
+
+    def decidir_get_headers(self):
+        return {
+            'apikey': self.decidir_secret_key,
+            'content-type': "application/json",
+            'cache-control': "no-cache"
+        }
+
+    def decidir_cancel_refund(self, payment_id, refund_id):
+        
+        # merchantId
+        api_url = self.decidir_get_base_url() + '/payments/%i/refunds/%i' % (payment_id, refund_id)
+        headers = self.decidir_get_headers()
+        payload = '{}'
+        response = requests.delete(api_url, data=payload, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise UserError(_("No puedo recuperar este pago"))
+
+    def decidir_refund_payment(self, payment_id, amount=0):
+        
+        # merchantId
+        api_url = self.decidir_get_base_url() + '/payments/' + str(payment_id) + '/refunds'
+        headers = self.decidir_get_headers()
+        payload = '{}'
+        if (amount):
+            payload = '{"amount": %i}' % int(amount * 100)
+
+        response = requests.post(api_url, data=payload, headers=headers)
+        if response.status_code == 201:
+            return response.json()
+        if response.status_code == 400:
+            res = response.json()
+            raise UserError("ERROR \n" + str(res))
+        else:
+            raise UserError(_("No puedo devolver este pago"))
+
+    def decidir_get_payment_info(self, payment_id):
+        
+        # merchantId
+        api_url = self.decidir_get_base_url() + '/payments/' + str(payment_id)
+        headers = self.decidir_get_headers()
+        payload = {}
+        response = requests.get(api_url, params=payload, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise UserError(_("No puedo recuperar este pago"))
+
+    def decidir_get_payments(self, dateFrom=False, dateTo=False, siteOperationId=False, offset=0):
+        
+        # merchantId
+        api_url = self.decidir_get_base_url() + '/payments'
+        headers = self.decidir_get_headers()
+        payload = {
+            'pageSize': 50,
+            'offset': 0,
+        }
+        if (dateFrom):
+            payload['dateFrom'] = dateFrom
+        if (dateTo):
+            payload['dateTo'] = dateTo
+        if (siteOperationId):
+            payload['siteOperationId'] = siteOperationId
+        response = requests.get(api_url, params=payload, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise UserError(_("No puedo recuperar este pago"))
 
     def payment_decidir_make_token(self, card_id, end_string, partner_id, add_token, bin):
         token = {
@@ -72,6 +142,7 @@ class PaymentAcquirer(models.Model):
             'active': True,
         }
         return self.env['payment.token'].create(token)
+
 
     def payment_decidir_create_payment(self, order, token, amount, fees,  instalment, card_bin):
         values = {
@@ -91,22 +162,21 @@ class PaymentAcquirer(models.Model):
             #'callback_method': 'reconcile_pending_transaction' if off_session else '_reconcile_and_send_mail',
             #'return_url': '/my/invoices/%s' % (self.id),
         }
-        _logger.info(values)
         tx = self.env['payment.transaction'].sudo().create(values)
         sps_send = tx.payment_decidir_send_payment(token, card_bin)
-        _logger.info(sps_send)
         if 'validation_errors' in sps_send and sps_send['validation_errors']:
             errors = [x['code'] for x in sps_send['validation_errors']]
-            raise UserError('<br/>'.join(errors))
+            tx.set_decidir_data(sps_send)
+            tx._set_transaction_error(errors)
+
+            return {'state': 'error', 'error': errors}
 
         if sps_send['status'] == "approved":
             if fees and order:
                 order.add_fee_line(fees, instalment)
+            tx.set_decidir_data(sps_send)
             tx._set_transaction_done()
             tx._post_process_after_done()
-            tx.sps_ticket = sps_send['status_details']['ticket']
-            tx.sps_card_authorization_code = sps_send['status_details']['card_authorization_code']
-            tx.sps_address_validation_code = sps_send['status_details']['address_validation_code']
 
             order.with_context(send_email=True).action_confirm()
             portal_url = order.get_portal_url()
@@ -114,6 +184,7 @@ class PaymentAcquirer(models.Model):
         elif sps_send['status'] == "Preapporved":
             if fees and order:
                 order.add_fee_line(fees, instalment)
+            tx.set_decidir_data(sps_send)
 
             order.with_context(send_email=True).action_confirm()
             portal_url = order.get_portal_url()
@@ -122,14 +193,17 @@ class PaymentAcquirer(models.Model):
         elif sps_send['status'] == "Review":
             if fees and order:
                 order.add_fee_line(fees, instalment)
-
+            tx.set_decidir_data(sps_send)
             order.with_context(send_email=True).action_confirm()
             portal_url = order.get_portal_url()
             tx._set_transaction_pending()
             return {'state': 'pending', 'tx': tx.id, 'portal_url': portal_url}
         elif sps_send['status'] == "Rejected":
+            tx._set_transaction_error('Rejected')
             return {'state': 'error', 'tx': tx.id}
-            tx._set_transaction_error()
+        else:
+            tx._set_transaction_error('error Desconocido')
+            return {'state': 'error'}
 
     def decidir2_instalment_tree(self, order=False, order_id=False, amount_total=0):
 
@@ -167,6 +241,7 @@ class PaymentAcquirer(models.Model):
                     'bank_discount': instalment.bank_discount,
                     'ctf': instalment.ctf,
                     'tea': instalment.tea,
+                    'divisor': instalment.divisor,
                     'base_amount': amount_total,
                     'amount': amount, 
                     'fee': amount - amount_total,

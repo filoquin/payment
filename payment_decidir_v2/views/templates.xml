@@ -21,33 +21,46 @@
   </template>
   <template id="decidir2_instalment_menu" name="menu de coutas">
     <t t-set="tree" t-value="acq.decidir2_instalment_tree(order,order_id, amount)"/>
-    <t t-set="first" t-value="True"/>
-    <div class="p-3 oe_decidir">
-      <ul class="nav nav-tabs" id="decidir" role="tablist">
-        <li class="nav-item" role="presentation" t-as="card_id" t-foreach="tree">
-          <a class="nav-link" data-toggle="tab" role="tab" t-att-aria-controls="'method-%s' % tree[card_id]['id']" t-att-href="'#method-%s' % tree[card_id]['id']" t-att-id="'%s-tab' % tree[card_id]['id']">
-            <span t-esc="tree[card_id]['name']"/>
-          </a>
-        </li>
-      </ul>
-      <div class="tab-content">
-        <div role="tabpanel" t-as="card_id" t-att-aria-labelledby="'%s-tab' % tree[card_id]['id']" t-att-class="'tab-pane active' if first else 'tab-pane'" t-att-id="'method-%s' % tree[card_id]['id']" t-foreach="tree">
-          <t t-set="first" t-value="False"/>
-          <t t-as="instalments" t-foreach="tree[card_id]['instalments']">
-            <div class="pb-2 payment_dv2_start" t-att-data-acquirer_id="acq.id" t-att-data-amount="instalments['amount']" t-att-data-base-amount="instalments['base_amount']" t-att-data-fee="instalments['fee']" t-att-data-instalment_id="instalments['id']" t-att-data-method="instalments['method']">
-              <div class="weight-bold text-primary " t-if="str(instalments['instalment']) != instalments['name']">
-                <strong t-esc="instalments['name']"/>
-              </div>
-              <div>
-                <span t-esc="instalments['instalment']"/>
-                <span>cuotas de </span>
-                <strong t-esc="instalments['amount'] / instalments['instalment']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-              </div>
-              <div t-if="instalments['bank_discount']">
-                <em t-esc="instalments['bank_discount']"/>% de descuento bancario</div>
-              <div class="dropdown-divider"/>
+    <t t-set="first" t-value="False"/>
+    <div class="pt-3 oe_decidir">
+      <div class="row">
+        <div class="col-4">
+          <ul class="nav flex-column " id="decidir" role="tablist">
+            <li class="nav-item border-bottom p-1" role="presentation" t-as="card_id" t-foreach="tree">
+              <a class="nav-link p-1" data-toggle="tab" role="tab" t-att-aria-controls="'method-%s' % tree[card_id]['id']" t-att-href="'#method-%s' % tree[card_id]['id']" t-att-id="'%s-tab' % tree[card_id]['id']">
+                <span t-esc="tree[card_id]['name']"/>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-8">
+          <h3 class="decidir_v2_method_name"/>
+
+          <div class="tab-content ">
+            <div role="tabpanel" t-as="card_id" aria-labelledby="start-tab" class="tab-pane active">
+               <h4 class="text-primary"><span class="number">1</span> Elegi el Medio de pago</h4>
             </div>
-          </t>
+            <div role="tabpanel" t-as="card_id" t-att-aria-labelledby="'%s-tab' % tree[card_id]['id']" t-att-class="'tab-pane active' if first else 'tab-pane'" t-att-id="'method-%s' % tree[card_id]['id']" t-foreach="tree">
+             <h4 class="text-primary"><span class="number">2</span> Elegi el plan de pago</h4>
+              <t t-set="first" t-value="False"/>
+              <t t-as="instalments" t-foreach="tree[card_id]['instalments']">
+
+                <div class="pb-2 payment_dv2_start" t-att-data-acquirer_id="acq.id" t-att-data-amount="instalments['amount']" t-att-data-base-amount="instalments['base_amount']" t-att-data-fee="instalments['fee']" t-att-data-instalment_id="instalments['id']" t-att-data-method="instalments['method']">
+                  <div class="weight-bold text-primary " t-if="str(instalments['instalment']) != instalments['name']">
+                    <strong t-esc="instalments['name']"/>
+                  </div>
+                  <div>
+                    <span t-esc="instalments['divisor']"/>
+                    <span>cuotas de </span>
+                    <strong t-esc="instalments['amount'] / instalments['divisor']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                  </div>
+                  <div t-if="instalments['bank_discount']">
+                    <em t-esc="instalments['bank_discount']"/>% de descuento bancario</div>
+                  <div class="dropdown-divider"/>
+                </div>
+              </t>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -64,12 +77,7 @@
   </template>
   <template id="decidir_inline_form" name="decidir v2 form">
     <div class="decidir_v2_inline_form">
-      <div class="row">
-        <div class="col-sm-6">
-          <h3 class="decidir_v2_method_name"/>
-        </div>
-        <div class="col-sm-6"/>
-      </div>
+
       <div class="row">
         <div class="col-sm-12">
           <div class="form-group">
@@ -121,12 +129,12 @@
       <input name="publishableKey" t-att-value="acquirer_id.decidir_public_key" type="hidden"/>
       <input name="decidir_public_key" t-att-value="acquirer_id.decidir_public_key" type="hidden"/>
       <input name="decidir_url" t-att-value="acquirer_id.decidir_get_base_url()" type="hidden"/>
-      <input name="instalment_id" type="text"/>
-      <input name="method" type="text"/>
-      <input name="amount" type="text"/>
-      <input name="base_amount" type="text"/>
-      <input name="fees" type="text"/>
-      <input name="decidir_order_id" t-att-value="order.id if order else order_id" type="text"/>
+      <input name="instalment_id" type="hidden"/>
+      <input name="method" type="hidden"/>
+      <input name="amount" type="hidden"/>
+      <input name="base_amount" type="hidden"/>
+      <input name="fees" type="hidden"/>
+      <input name="decidir_order_id" t-att-value="order.id if order else order_id" type="hidden"/>
     </div>
   </template>
 </odoo>

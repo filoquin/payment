@@ -1,2 +1,3 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_payment_decidir_payment_decidir,payment_decidir.payment_decidir,model_payment_decidir_payment_decidir,base.group_user,1,1,1,1
+"id","name","model_id/id","group_id/id","perm_read","perm_write","perm_create","perm_unlink"
+"payment_decidir_v2.refund_user","payment.transaction.decidir.refund user","payment_decidir_v2.model_payment_transaction_decidir_refund","","True","","",""
+"payment_decidir_v2.decidir_refund","payment.transaction.decidir.refund","payment_decidir_v2.model_payment_transaction_decidir_refund","account.group_account_invoice","True","True","True","True"

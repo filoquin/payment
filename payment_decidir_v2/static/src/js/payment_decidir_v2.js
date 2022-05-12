@@ -36,7 +36,10 @@ PaymentForm.include({
         $('input[name=amount]').val(amount);
         $('input[name=base_amount]').val(base_amount);
         $('input[name=fees]').val(fee);
-        $('.decidir_v2_method_name').hide(100).html(selected_text).show(100);
+        $('.decidir_v2_method_name').fadeOut(100).html(selected_text).fadeIn(100);
+        $(event.currentTarget).closest('.tab-pane').removeClass('active')
+        $('.decidir_v2_inline_form').fadeIn(100);
+
 
 
       },
@@ -124,6 +127,8 @@ PaymentForm.include({
                         decidir_order_id: decidir_order_id,
                     },
                 }).then(function (data) {
+                    console.log(data);
+                    
                     if(data['state']=='ok'){
                         window.location.href = data['portal_url'];
                     } else {

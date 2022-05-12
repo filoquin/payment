@@ -5,13 +5,26 @@
 		<field name="model">payment.transaction</field>
 		<field name="inherit_id" ref="payment.transaction_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//group[last()]" position="before" >
+			<xpath expr="//group[last()]" position="before">
 				<group string="Decidir">
+					<field groups="base.group_no_one" name="sps_payment_id"/>
 					<field attrs="{'readonly':True}" name="sps_payment_method"/>
 					<field attrs="{'readonly':True}" name="sps_payment_instalment"/>
 					<field attrs="{'readonly':True}" name="sps_ticket"/>
 					<field attrs="{'readonly':True}" name="sps_card_authorization_code"/>
 					<field attrs="{'readonly':True}" name="sps_address_validation_code"/>
+					<field attrs="{'readonly':True}" name="sps_payment_refund_id"/>
+					
+					<span colspan="2"><field attrs="{'readonly':True}"  colspan="2"  name="sps_refund_ids">
+						<tree>
+							<field name="sps_ticket"/>
+							<field name="amount"/>
+						</tree>
+					</field></span>
+					<button class="oe_highlight" name="decidir_refunds_total_payment" string="Cancelar pago" type="object"/>
+					<button class="oe_highlight" name="action_open_refund" string="decidir devolver parcial" type="object"/>
+					<button class="oe_highlight" groups="base.group_no_one" name="decidir_get_payment_info" string="Traer de Decidir" type="object"/>
+					<button class="oe_highlight" context="{'only_show_data':True}" name="decidir_get_payment_info" string="Info Decidir" type="object"/>
 				</group>
 			</xpath>
 		</field>

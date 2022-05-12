@@ -16,12 +16,13 @@
     'version': '13.0.0.0.1',
     'depends': ['payment', 'credit_card_instalment', 'sale'],
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/payment_acquirer.xml',
         'views/account_card.xml',
         'views/decidir_v2_form.xml',
         'views/payment_transaction.xml',
         'views/templates.xml',
+        'views/parcial_refund.xml',
         'data/payment_acquirer_data.xml',
     ],
 
