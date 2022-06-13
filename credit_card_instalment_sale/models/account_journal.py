@@ -6,11 +6,11 @@ MAX_INSTALMENT = 24
 
 
 class AccountJournal(models.Model):
-    _inherit = 'account.journal'
+    _inherit = "account.journal"
 
     account_card_ids = fields.Many2many(
-        'account.card',
-        string='Cards',
+        "account.card",
+        string="Cards",
     )
 
     """card_type = fields.Selection(
