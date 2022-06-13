@@ -10,3 +10,9 @@ class PosPayment(models.Model):
         'pos_payment_id',
         string='Electronic Transactions',
     )
+    tx_manual_aprove = fields.Boolean(
+        string='manual aprove',
+    )
+    tx_manual_authorization = fields.Char(
+        string='Authorization',
+    )

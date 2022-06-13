@@ -1,5 +1,6 @@
 from odoo import fields, models, _
 
+
 class PaymentAcquirer(models.Model):
 
     _inherit = 'payment.acquirer'
@@ -21,6 +22,12 @@ class PaymentAcquirer(models.Model):
                 'amount': tx.amount,
             }            
         return {} 
+
+    def mp_qr_set_qr_manual_authorization(self, data):
+        if 'transaction_id' in data:
+            tx = self.env['payment.transaction'].sudo().browse(data['transaction_id'])
+            tx.merchant_order_id = data['tx_manual_authorization']
+            tx._set_transaction_authorized()
 
     def get_qr_transactions(self, data):
         if data['configId']:

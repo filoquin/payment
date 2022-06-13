@@ -7,6 +7,8 @@
 		<field name="arch" type="xml">
 			<field name="session_id" position="after">
 				<field name="tx_ids"/>
+				<field name="tx_manual_aprove"/>
+				<field attrs="{'invisible':}" name="tx_manual_authorization"/>
 			</field>
 		</field>
 	</record>

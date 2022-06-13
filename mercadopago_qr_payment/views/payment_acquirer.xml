@@ -9,14 +9,12 @@
 				<group attrs="{'invisible': [('provider', '!=', 'mp_qr')]}" colspan="4" string="Mercadopago">
 					<button name="action_mp_create_stores" string="Create stores" type="object"/>
 					<button name="mp_get_lost_transaction" string="Lost transaction" type="object"/>
-
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_public_key"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_access_token" password="true"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_qr_title"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_qr_description"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_default_partner_id"/>
 					<field attrs="{'required': [('provider', '=', 'mp_qr')]}" name="mp_ipn_url"/>
-					
 					<span colspan="4">
 						<field name="store_ids" widget="one2many_list">
 							<tree>
@@ -45,9 +43,9 @@
 						<field name="name"/>
 					</h1>
 					<group col="4">
-						<field name="mp_id" groups="base.group_no_one"/>
-						<field name="acquirer_id" attrs="{'invisible':True}"/>
-						<field name="external_id" attrs="{'readonly':[('mp_id' ,'!=', 0)],'required':[('mp_id' ,'=', 0)]}"/>
+						<field groups="base.group_no_one" name="mp_id"/>
+						<field attrs="{'invisible':True}" name="acquirer_id"/>
+						<field attrs="{'readonly':[('mp_id' ,'!=', 0)],'required':[('mp_id' ,'=', 0)]}" name="external_id"/>
 					</group>
 					<group col="4" string="address">
 						<field name="country_name"/>
@@ -85,6 +83,21 @@
 					</group>
 				</sheet>
 			</form>
+		</field>
+	</record>
+	<record id="transaction_form" model="ir.ui.view">
+		<field name="name">transaction.form</field>
+		<field name="model">payment.transaction</field>
+		<field name="inherit_id" ref="payment.transaction_form"/>
+		<field name="arch" type="xml">
+			<button name="action_capture" position="after">
+				<button name="mp_qr_transaction_check" states="pending" string="Verificar" type="object"/>
+			</button>
+			<field name="acquirer_id" position="after">
+				<field name="merchant_order_id"/>
+				<field name="store_external_id"/>
+				<field name="pos_external_id"/>
+			</field>
 		</field>
 	</record>
 </odoo>

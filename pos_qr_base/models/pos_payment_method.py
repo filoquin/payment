@@ -92,6 +92,16 @@ class PosPaymentMethod(models.Model):
                 return method(data)
         return False            
 
+    @api.model
+    def set_qr_manual_authorization(self, data):
+        method = self.browse(data['paymentMethod'])
+        data['config_id'] = self.env['pos.config'].browse(data['configId'])
+        if len(method.acquirer_id):
+            cust_method_name = '%s_set_qr_manual_authorization' % (method.acquirer_id.provider)
+            if hasattr(method.acquirer_id, cust_method_name):
+                method = getattr(method.acquirer_id, cust_method_name)
+                return method(data)
+        return False 
 
     @api.model
     def get_qr_image(self, data):

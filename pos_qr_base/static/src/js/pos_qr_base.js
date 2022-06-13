@@ -178,7 +178,7 @@ odoo.define("pos_qr_base.payment", function (require) {
             method: 'check_qr_transaction',
             args: data,
         }).then(function (data) {
-          if (data['state'] == 'pending' || data['state'] == 'authorized'){
+          if (data['state'] == 'pending' ){
             console.log(data['state']);
           }
           else if (data['state'] == 'cancel'){
@@ -189,7 +189,11 @@ odoo.define("pos_qr_base.payment", function (require) {
             //line.set_amount(data['amount']) ;
             resolve(false);
           }
-          else if (data['state'] == 'aauthorized'){
+          else if (data['state'] == 'authorized'){
+            line.set_amount(data['amount']) ;
+            resolve(true);
+          }
+          else if (data['state'] == 'done'){
             line.set_amount(data['amount']) ;
             resolve(true);
           }

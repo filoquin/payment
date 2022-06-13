@@ -159,8 +159,6 @@ class PaymentAcquirer(models.Model):
                    self.mp_access_token, "Content-Type": "application/json"}
 
         base_url = self.get_base_url()
-        #base_url = "https://hormigag.ar/"
-        #base_url = "http://181.171.155.178:8013/"
 
         external_reference = "%s-%s-%s" % (data['pos_external_id'], data[
                                            'reference'], fields.Datetime.now())
@@ -233,7 +231,7 @@ class PaymentAcquirer(models.Model):
         }
         _logger.info(values)
         return values
-    
+
     # Para obtener el estado del pago de manera proactiva
     """
         curl -X GET \
@@ -262,7 +260,7 @@ class PaymentAcquirer(models.Model):
         if response.status_code == 200:
             data = response.json()
             if not data['elements']:
-                return  
+                return
             for order in data['elements']:
                 if order['external_reference'] and len(order['payments']):
                     tx = self.env['payment.transaction'].sudo().search(
@@ -272,7 +270,7 @@ class PaymentAcquirer(models.Model):
                     )
                     _logger.info(order)
                     _logger.info(tx)
-                    if not len(tx): 
+                    if not len(tx):
                         values = {
                             'amount': order['total_amount'],
                             'acquirer_id': self.id,
@@ -287,7 +285,6 @@ class PaymentAcquirer(models.Model):
                         tx_obj = self.env['payment.transaction']
                         tx = tx_obj.sudo().create(values)
 
-                        
 
 class PaymentTransaction(models.Model):
 
@@ -376,13 +373,38 @@ class PaymentTransaction(models.Model):
             else:
                 _logger.error(response.content)
 
+    def mp_qr_transaction_check(self):
+        for tx in self:
+            api_url = MP_URL + \
+                "merchant_orders?external_reference=%s" % (
+                    tx.reference)
+            headers = {"Authorization": "Bearer %s" %
+                       tx.acquirer_id.mp_access_token}
+            response = requests.get(api_url, headers=headers)
 
-
+            if response.status_code == 200:
+                data = response.json()['elements']
+                if data:
+                    data = data[0]
+                    tx.merchant_order_id = str(data['id'])
+                    has_payment = False
+                    total_amount = 0.0
+                    for payment in data['payments']:
+                        if payment["status"] == "approved":
+                            has_payment = True
+                            total_amount += payment['total_paid_amount']
+                    if has_payment:
+                        tx.amount = total_amount
+                        tx._set_transaction_authorized()
+                else: 
+                    tx._set_transaction_error('No existe la transaccion')
+            else:
+                raise UserError(response.content)
+        return True
 
     def mp_qr_s2s_capture_transaction(self, **kwargs):
         acquirer_id = self.acquirer_id
-
-        api_url = MP_URL + "merchant_orders/search/?external_reference=%s" % self.reference
+        api_url = MP_URL + "merchant_orders/?external_reference=%s" % self.reference
         headers = {"Authorization": "Bearer %s" %
                    acquirer_id.mp_access_token, "Content-Type": "application/json"}
 
@@ -397,7 +419,7 @@ class PaymentTransaction(models.Model):
                 self._set_transaction_authorized()
             if order['status'] == 'cancel' and self.state != 'cancel':
                 self._set_transaction_cancel()
-            if order['status'] == 'approved' and self.state != 'done':
+            if order['status'] in ['approved', 'closed'] and self.state != 'done':
                 self._set_transaction_done()
 
         else:
