@@ -102,7 +102,10 @@ class MpStore(models.Model):
 
     def unlink(self):
         for record in self.filtered(lambda s: s.mp_id != 0):
-            record.acquirer_id.action_mp_unlink_store(self.mp_id)
+            try:
+                record.acquirer_id.action_mp_unlink_store(self.mp_id)
+            except:
+                pass
         return super().unlink()
 
     def action_force_active(self):

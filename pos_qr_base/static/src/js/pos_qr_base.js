@@ -79,6 +79,14 @@ odoo.define("pos_qr_base.payment", function (require) {
 
 
   var PaymentQR = PaymentInterface.extend({
+
+    init: function (pos, payment_method) {
+      this._super.apply(this, arguments);
+      this.supports_reversals = false;
+
+    },
+
+
     send_payment_request: function (cid) {
       this._super.apply(this, arguments);
       return this._qr_start(cid);
@@ -106,11 +114,11 @@ odoo.define("pos_qr_base.payment", function (require) {
           let configId = line.pos.pos_session.config_id[0]
           let sessionId = line.pos.pos_session.id
           let data = [{
-              configId:configId, 
-              sessionId:sessionId, 
-              name: line.order.name, 
-              reference: order.uid + '-' + line.cid + '-' + entropy, 
-              paymentMethod : line.payment_method.id, 
+              configId:configId,
+              sessionId:sessionId,
+              name: line.order.name,
+              reference: order.uid + '-' + line.cid + '-' + entropy,
+              paymentMethod : line.payment_method.id,
               amount: line.amount
            }]
            if (order.attributes.client?.id){
@@ -166,8 +174,8 @@ odoo.define("pos_qr_base.payment", function (require) {
       let configId = line.pos.pos_session.config_id[0]
       let sessionId = line.pos.pos_session.id
       let data = [{
-          configId:configId, 
-          sessionId:sessionId, 
+          configId:configId,
+          sessionId:sessionId,
           paymentMethod : line.payment_method.id,
           transaction_id : line.active_transaction_id,
 
@@ -191,7 +199,9 @@ odoo.define("pos_qr_base.payment", function (require) {
           }
           else if (data['state'] == 'authorized'){
             line.set_amount(data['amount']) ;
-            resolve(true);
+            //para test de puede descomentar
+            // y escaneando se marca como pago
+            //resolve(true);
           }
           else if (data['state'] == 'done'){
             line.set_amount(data['amount']) ;
