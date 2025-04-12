@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_link_wizard_view_form" model="ir.ui.view">
+        <field name="name">payment.link.wizard.form</field>
+        <field name="model">payment.link.wizard</field>
+        <field name="inherit_id" ref="payment.payment_link_wizard_view_form"></field>
+        <field name="arch" type="xml">
+            <field name="payment_provider_selection" position="after">
+                <field name="is_qr_provider" invisible="1"/>
+            </field>
+            <field name="link" position="attributes">
+                <attribute name="attrs">{'invisible':[('is_qr_provider', '=', True)]}</attribute>
+            </field>
+            <footer><button string="Create payment" attrs="{'invisible':[('is_qr_provider', '!=', True)]}" name="action_create_payment" type="object" data-hotkey="O"/></footer>
+        </field>
+    </record>
+
+</odoo>

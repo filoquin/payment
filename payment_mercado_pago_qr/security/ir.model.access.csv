@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+payment_mercado_pago_qr.access_payment_qr_wizard,access_payment_qr_wizard,payment_mercado_pago_qr.model_payment_qr_wizard,base.group_user,1,1,1,0
