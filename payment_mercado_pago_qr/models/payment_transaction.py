@@ -110,6 +110,7 @@ class PaymentTransaction(models.Model):
                     self.provider_reference = merchand_order["id"]
                     self.amount = merchand_order["paid_amount"]
                     self._set_done()
+                    self._reconcile_after_done()
 
     def mp_payment_order_cancel(self):
         mercado_pago = MercadoPagoRequest(self.provider_id.mercado_pago_qr_access_token)

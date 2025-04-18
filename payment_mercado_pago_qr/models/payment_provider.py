@@ -27,14 +27,14 @@ class PaymentProvider(models.Model):
     )
     mp_user_id = fields.Char()
     store_id = fields.Char()
-    pos_id = fields.Char()
-
-    mp_external_store_id = fields.Char()
-    mp_external_pos_id = fields.Char()
-    mp_qr_url = fields.Char(string="QR URL")
+    pos_id = fields.Char(copy=False)
+    mp_external_store_id = fields.Char(copy=False)
+    mp_external_pos_id = fields.Char(copy=False)
+    mp_qr_url = fields.Char(string="QR URL", copy=False)
     mp_qr_image = fields.Binary(
         string="QR",
         attachment=True,
+        copy=False,
     )
 
     def set_qr_info(self):
@@ -63,7 +63,7 @@ class PaymentProvider(models.Model):
         else:
             body = {
                 "external_id": f"pos{self.id}",
-                "mp_external_store_id": self.mp_external_store_id,
+                "external_store_id": self.mp_external_store_id,
                 "fixed_amount": True,
                 "name": self.name,
                 "store_id": self.store_id,
