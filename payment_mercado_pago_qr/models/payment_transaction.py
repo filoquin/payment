@@ -59,7 +59,8 @@ class PaymentTransaction(models.Model):
     def mp_payment_order_create(self):
         self.ensure_one()
         base_url = self.get_base_url()
-        base_url = "https://hormiga.ar/"
+        if 'localhost' in base_url:
+            base_url = "https://hormiga.ar/"
         data = {
             "title": self.reference,
             "notification_url": f"{base_url}/pos_mercado_pago/notification",
