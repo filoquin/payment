@@ -1,0 +1,22 @@
+<odoo>
+  <record id="payment_provider_form" model="ir.ui.view">
+      <field name="name">mercado_pago_qr Provider Form</field>
+      <field name="model">payment.provider</field>
+      <field name="inherit_id" ref="payment.payment_provider_form"/>
+      <field name="arch" type="xml">
+          <xpath expr="//group[@name=&quot;provider_credentials&quot;]" position="inside">
+              <group attrs="{'invisible': [('code', '!=', 'mercado_pago_qr')]}">
+                  <field attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}" name="mercado_pago_qr_access_token" password="True"/>
+					<field name="mp_user_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
+					<field name="store_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
+					<field name="pos_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
+					<field name="mp_external_store_id"/>
+					<field name="mp_external_pos_id"/>
+					<field name="mp_qr_url"/>
+					<button name="set_qr_info" type="object" colspan="2" string="set qr_info"/>
+					<button name="find_more_pos" type="object" colspan="2" string="Find more pos"/>
+              </group>
+          </xpath>
+      </field>
+  </record>
+</odoo>

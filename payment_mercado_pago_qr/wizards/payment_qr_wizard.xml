@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_qr_wizard_view_form" model="ir.ui.view">
+        <field name="name">payment.qr.wizard.form</field>
+        <field name="model">payment.qr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Payment QR">
+                <field name="provider_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <group>
+                    <group >
+                        <field name="tx_id" readonly="1"/>
+                        <field name="state" readonly="1"/>
+                        <field name="amount" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="mp_qr_image" nolabel="1" colspan="2" widget="image"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Check order" class="btn-primary" name="action_check_status" type="object" data-hotkey="O"/>
+                    <button string="Cancel order" name="action_cancel_order" type="object" data-hotkey="c"/>
+                    <button string="Close" class="btn-link" special="cancel" data-hotkey="z"/> 
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

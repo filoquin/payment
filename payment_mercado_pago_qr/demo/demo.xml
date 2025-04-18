@@ -1,0 +1,12 @@
+<odoo>
+    <data>
+        <record id="payment_provider_mercado_pago_qr" model="payment.provider">
+            <field name="mercado_pago_qr_access_token">APP_USR-8679590302772901-072815-27f3c297abc53b6524f5c3832dbaa7de-1919546207</field>
+            <field name="mp_user_id">1919546207</field>
+            <field name="store_id">62322445</field>
+            <field name="pos_id">102762615</field>
+
+            <field name="state">test</field>
+        </record>
+    </data>
+</odoo>

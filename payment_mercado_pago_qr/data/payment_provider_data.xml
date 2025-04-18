@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="payment_provider_mercado_pago_qr" model="payment.provider">
+        <field name="name">Mercadopago QR</field>
+        <field name="code">mercado_pago_qr</field>
+        <field name="display_as">Credit Card (powered by mercadopago)</field>
+        <field file="payment_mercado_pago_qr/static/description/icon.png" name="image_128" type="base64"/>
+        <field name="module_id" ref="base.module_payment_mercado_pago_qr"/>
+        <field name="support_refund">partial</field>
+        <field name="support_tokenization">True</field>
+        <field name="allow_tokenization">True</field>
+        <field eval="[(6, 0, [ref(&quot;payment.payment_icon_cc_american_express&quot;),
+            ref(&quot;payment.payment_icon_cc_mastercard&quot;),
+            ref(&quot;payment.payment_icon_cc_visa&quot;)])]" name="payment_icon_ids"/>
+    </record>
+
+</odoo>
