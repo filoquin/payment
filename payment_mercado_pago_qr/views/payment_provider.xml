@@ -9,12 +9,15 @@
                   <field attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}" name="mercado_pago_qr_access_token" password="True"/>
 					<field name="mp_user_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
 					<field name="store_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
-					<field name="pos_id" attrs="{'required': [('code', '=', 'mercado_pago_qr'), ('state', '!=', 'disabled')]}"/>
-					<field name="mp_external_store_id"/>
-					<field name="mp_external_pos_id"/>
-					<field name="mp_qr_url"/>
-					<button name="set_qr_info" type="object" colspan="2" string="set qr_info"/>
-					<button name="find_more_pos" type="object" colspan="2" string="Find more pos"/>
+					<field name="pos_id"/>
+					<field name="mp_external_store_id" groups="base.group_no_one"/>
+					<field name="mp_external_pos_id" groups="base.group_no_one"/>
+					<field name="mp_qr_url" widget="CopyClipboardChar"/>
+					<field name="mp_qr_image" invisible="1"/>
+					<div>
+						<button name="set_qr_info" attrs="{'invisible': ['|','|','|',('mercado_pago_qr_access_token', '=', False),('mp_user_id', '=', False),('store_id', '=', False), ('mp_qr_image', '!=', False)]}" type="object" colspan="2" string="set qr_info"/>
+						<button name="find_more_pos" type="object" colspan="2" string="Find more pos"/>
+					</div>
               </group>
           </xpath>
       </field>
