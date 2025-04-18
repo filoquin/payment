@@ -21,6 +21,6 @@
         "wizards/payment_qr_wizard.xml",
     ],
     "demo": [
-        'demo/demo.xml',
+        "demo/demo.xml",
     ],
 }
