@@ -22,9 +22,9 @@ class PaymentLinkWizard(models.TransientModel):
                 rec.is_qr_provider = False
 
     def action_create_payment(self):
-
-        transaction_vals = self._prepare_payment_transaction_vals()
-        transaction = self.env["payment.transaction"].create(transaction_vals)
+        wizard_sudo = self.sudo()
+        transaction_vals = wizard_sudo._prepare_payment_transaction_vals()
+        transaction = wizard_sudo.env["payment.transaction"].create(transaction_vals)
         transaction.mp_payment_order_create()
         transaction.mp_payment_order_get()
         return transaction.action_mp_open_qr()

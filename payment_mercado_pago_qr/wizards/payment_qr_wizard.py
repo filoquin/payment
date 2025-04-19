@@ -33,10 +33,10 @@ class PaymentQrWizard(models.TransientModel):
     )
 
     def action_check_status(self):
-        self.tx_id.mp_payment_order_get()
+        self.tx_id.sudo().mp_payment_order_get()
         if self.state != "done":
-            return self.tx_id.action_mp_open_qr()
+            return self.tx_id.sudo().action_mp_open_qr()
 
     def action_cancel_order(self):
-        self.tx_id.mp_payment_order_cancel()
-        self.tx_id._set_canceled(f"Canceled by user {self.env.user.name}")
+        self.tx_id.sudo().mp_payment_order_cancel()
+        self.tx_id.sudo()._set_canceled(f"Canceled by user {self.env.user.name}")
