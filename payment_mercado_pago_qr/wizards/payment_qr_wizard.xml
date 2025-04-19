@@ -21,7 +21,7 @@
                 <footer>
                     <button string="Check order" class="btn-primary" name="action_check_status" type="object" data-hotkey="O"/>
                     <button string="Cancel order" name="action_cancel_order" type="object" data-hotkey="c"/>
-                    <button string="Close" class="btn-link" special="cancel" data-hotkey="z"/> 
+                    <button string="Close" class="btn-link" special="cancel" data-hotkey="z"/>
                 </footer>
             </form>
         </field>

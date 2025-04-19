@@ -10,10 +10,11 @@
     "author": "filoquin",
     "website": "http://www.hormigag.ar",
     "category": "sale",
-    "version": "16.0.1.0.0",
+    "version": "17.0.1.0.0",
     "depends": ["payment"],
     "data": [
         "security/ir.model.access.csv",
+        "data/payment_method_data.xml",
         "data/payment_provider_data.xml",
         "views/payment_provider.xml",
         "views/payment_transaction.xml",
@@ -23,7 +24,7 @@
     "demo": [
         "demo/demo.xml",
     ],
-   'instalable':False,
-   'post_init_hook': 'post_init_hook',
-   'uninstall_hook': 'uninstall_hook',
+    "instalable": False,
+    "post_init_hook": "post_init_hook",
+    "uninstall_hook": "uninstall_hook",
 }

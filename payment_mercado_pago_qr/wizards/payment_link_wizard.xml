@@ -6,13 +6,14 @@
         <field name="model">payment.link.wizard</field>
         <field name="inherit_id" ref="payment.payment_link_wizard_view_form"></field>
         <field name="arch" type="xml">
-            <field name="payment_provider_selection" position="after">
-                <field name="is_qr_provider" invisible="1"/>
+            <field name="amount" position="after">
+                <field name="available_qr_provider_ids" invisible='1'/>
+                <field name="qr_provider_id" domain="[('id', 'in', available_qr_provider_ids)]"/>
             </field>
             <field name="link" position="attributes">
-                <attribute name="attrs">{'invisible':[('is_qr_provider', '=', True)]}</attribute>
+                <attribute name="invisible">qr_provider_id</attribute>
             </field>
-            <footer><button string="Create payment" attrs="{'invisible':[('is_qr_provider', '!=', True)]}" name="action_create_payment" type="object" data-hotkey="O"/></footer>
+            <footer><button string="Create payment" invisible="not qr_provider_id" name="action_create_payment" type="object" data-hotkey="O"/></footer>
         </field>
     </record>
 
